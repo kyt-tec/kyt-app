@@ -19,8 +19,10 @@ from django.contrib import admin
 from django.urls import path, include
 from django.http import HttpResponse
 from kytapp import views 
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', lambda request: redirect('/kyt/home/')),
     path('', views.top, name='top'),
     path('admin/', admin.site.urls),
     path('kyt/', include('kytapp.urls'))
