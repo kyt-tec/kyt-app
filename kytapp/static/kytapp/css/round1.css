@@ -1,0 +1,829 @@
+/* カード全体の横並び */
+
+
+.card-row {
+  display: flex;
+  gap: 16px;
+  margin: 15px 0 20px 0;
+  align-items: center;
+}
+
+/* 1枚のカードの外枠 */
+.card-block {
+  width: 120px;
+  height: 160px;
+  perspective: 800px;
+  cursor: pointer;
+}
+
+/* 回転部分 */
+.card-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transition: transform 0.6s ease;
+  transform-style: preserve-3d;
+}
+
+/* 反転した時 */
+.card-block.flipped .card-inner {
+  transform: rotateY(180deg);
+}
+
+/* 表・裏 共通 */
+.card-front, .card-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 15px;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* 表（画像側） */
+.card-front img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 裏（説明側） */
+.card-back {
+  transform: rotateY(180deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  font-size: 14px;
+  text-align: center;
+  background-color: #fff9db;
+  border: 3px dashed #facc15;
+  color: #7c2d12;
+  font-weight: bold;
+}
+
+/* カード配布ボタン */
+.deal-button {
+  margin-top: 20px;
+  padding: 12px 30px;
+  background: linear-gradient(135deg, #34d399, #22c55e);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #16a34a;
+  transition: all 0.1s ease;
+}
+
+.deal-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 1px 0 #16a34a;
+}
+
+/* 参加者ブロック */
+.participant-card {
+  background: #fff7ed;
+  border: 3px solid #fde68a;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 5px 0 #fed7aa;
+}
+
+.participant-card h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+  color: #7c2d12;
+}
+
+/* テキスト入力欄 */
+.input-block {
+  margin-top: 15px;
+}
+
+.input-block textarea {
+  width: 100%;
+  height: 60px;
+  resize: vertical;
+  padding: 10px;
+  border-radius: 10px;
+  border: 2px solid #fde68a;
+  font-size: 14px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #ffb703, #fb7185, #f97316);
+  font-family: "Segoe UI", "Rounded Mplus 1c", sans-serif;
+}
+
+.participant-card {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 22px;
+  padding: 25px;
+  margin: 20px auto 30px auto;
+  max-width: 600px;
+
+  box-shadow:
+    0 10px 25px rgba(0,0,0,0.15),
+    inset 0 0 0 4px #fff7ed;
+}
+
+.card-block {
+  width: 120px;
+  height: 170px;
+  perspective: 800px;
+  cursor: pointer;
+}
+
+.card-front, .card-back {
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.card-back {
+  background: linear-gradient(135deg, #fff7ed, #ffedd5);
+  border: 3px dashed #fb923c;
+  color: #7c2d12;
+  font-size: 15px;
+  font-weight: bold;
+}
+
+.deal-button {
+  background: linear-gradient(135deg, #fb923c, #fb7185);
+  border-radius: 30px;
+  padding: 14px 30px;
+  font-size: 17px;
+  font-weight: bold;
+  box-shadow: 0 5px 0 #ea580c;
+}
+
+.deal-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 #ea580c;
+}
+
+.input-block textarea {
+  border-radius: 15px;
+  border: 2px solid #fcd34d;
+  padding: 12px;
+  background: #fff7ed;
+  font-size: 15px;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+  background: #f6efe6;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 100px 1fr;
+  min-height: 100vh;
+}
+
+.left-bar {
+  background: linear-gradient(
+    180deg,
+    #fb923c,
+    #f97316,
+    #fb7185,
+    #facc15
+  );
+}
+
+.main-area {
+  padding: 30px 40px;
+}
+
+.panel-box {
+  background: #fffaf3;
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+}
+
+.card-area {
+  display: grid;
+  grid-template-columns: repeat(5, 140px);
+  gap: 20px;
+}
+
+.slot-box{
+    width:180px;height:160px;
+    overflow:hidden;
+    border-radius:12px;
+    border:3px solid #ffb547;
+    margin:10px auto;
+    background:white;
+}
+
+.reel{
+    transition:transform 0.07s linear;
+}
+
+.slot-item{
+    height:160px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+}
+
+.slot-img{
+    height:110px;
+}
+
+.slot-label{
+    font-weight:bold;
+    margin-top:5px;
+    font-size:16px;
+}
+
+.slot-btn{
+    margin-top:6px;
+    padding:6px 14px;
+    font-size:14px;
+    border-radius:8px;
+    background:#ff9640;
+    color:white;
+    cursor:pointer;
+}
+.slot-btn:hover{
+    filter:brightness(1.08);
+}
+
+.slot-group{
+  display:block;
+  margin:15px 0;
+  text-align:center;
+}
+
+.slot-title{font-weight:bold;margin-bottom:5px;}
+
+.slot-box{
+  width:170px;height:160px;margin:0 auto 8px auto;
+  border-radius:12px;border:3px solid #ffa93d;padding:4px;background:#fff;
+  overflow:hidden;
+}
+
+.slot-btn{
+  padding:6px 16px;font-size:15px;border-radius:8px;border:none;
+  background:#ff7f32;color:white;font-weight:bold;
+}
+
+.slot-btn:hover{filter:brightness(1.1);cursor:pointer;}
+
+.slot-box{
+  width:120px;
+  height:140px;
+  overflow:hidden;
+  border:3px solid #ffa93d;
+  border-radius:12px;
+  background:#fff;
+  margin:auto;
+}
+
+.reel{
+  position:relative;
+  transition:transform 0.1s linear;
+}
+
+.slot-item{
+  height:140px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+
+.slot-img{
+  width:90px;
+  height:90px;
+  object-fit:contain;
+}
+
+.slot-row{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin:10px 0;
+}
+
+/* 背景を柔らかく */
+.slot-machine {
+    background:#ffb3b3;
+    border-radius:20px;
+    padding:25px;
+    width:600px;
+    margin:20px auto;
+    text-align:center;
+    box-shadow:0 6px 14px rgba(0,0,0,0.2);
+}
+
+/* スロット窓 */
+.slot-window {
+    background:#fff;
+    border-radius:12px;
+    border:4px solid #ff4f6f;
+    width:520px;
+    height:160px;
+    display:flex;
+    margin:auto;
+    overflow:hidden;
+    justify-content:center;
+}
+
+/* スロット一列ごと */
+.slot-box{
+    width:120px;
+    height:160px;
+    overflow:hidden;
+    margin:0 4px;
+    border-right:1px solid #ddd;
+}
+
+.slot-box:last-child{
+    border-right:none;
+}
+
+/* 下ボタン整列 */
+.slot-controls{
+    margin-top:14px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+}
+
+/* STOPボタン */
+.slot-btn{
+    background:#ff4f6f;
+    color:white;
+    padding:6px 12px;
+    font-size:16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.slot-btn:hover{
+    filter:brightness(1.1);
+}
+
+.slot-win{
+    outline:5px solid #ffeb3b;
+    animation: glow 1s infinite alternate;
+    border-radius:10px;
+}
+
+
+
+/* ─────────────── SLOT UI 強化 ─────────────── */
+
+.sloto-machine{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  margin-top:10px;
+}
+
+.slot-window{
+  width:520px;
+  height:150px;
+  overflow:hidden;
+  border-radius:16px;
+  background:white;
+  border:4px solid #ffb5b5;
+  display:flex;justify-content:center;align-items:center;
+  box-shadow:0 5px 18px rgba(0,0,0,.15);
+  margin-bottom:10px;
+}
+.slot-box.when  { order: 1; }
+.slot-box.where { order: 2; }
+.slot-box.who   { order: 3; }
+.slot-box.what  { order: 4; }
+
+.slot-box{ display:flex; gap:10px; }
+
+.reel{
+  display:flex;
+  flex-direction:column;
+  transition:transform .15s linear;
+}
+
+.slot-item{
+  height:140px;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+}
+
+.slot-img{
+  width:110px;height:110px;object-fit:contain;
+}
+
+
+/* STOPボタン */
+.slot-btn{
+  background:#ffa07a;
+  color:white;font-weight:bold;font-size:15px;
+  padding:7px 18px;border-radius:20px;
+  margin:4px;border:none;cursor:pointer;
+}
+
+.slot-btn.when  { order: 1; }
+.slot-btn.where { order: 2; }
+.slot-btn.who   { order: 3; }
+.slot-btn.what  { order: 4; }
+
+.slot-btn:hover{ transform:scale(1.08);opacity:.9; }
+
+/* STARTボタン */
+.start-btn{
+  background:#4CAF50;color:white;font-weight:bold;
+  font-size:15px;padding:8px 22px;border-radius:25px;
+  border:none;margin-bottom:10px;cursor:pointer;
+}
+.start-btn:hover{transform:scale(1.05);}
+
+
+
+
+.slot-img{
+    will-change: filter, transform;
+    transition: filter .15s linear, opacity .15s linear;
+    backface-visibility: hidden;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========================
+   SLOT EFFECT FINAL FIX
+   (Edge/Chrome両対応版)
+======================== */
+
+
+
+
+
+
+/* ======= SLOT EFFECT - FINAL ======= */
+
+/* ----------- Edgeも確実に発光させる版 ----------- */
+.slot-box.stop-glow{
+    box-shadow: 0 0 30px 14px rgba(255,230,0,.95),
+                0 0 50px 22px rgba(255,200,0,.65) inset;
+    -webkit-box-shadow: 0 0 30px 14px rgba(255,230,0,.95),
+                        0 0 50px 22px rgba(255,200,0,.65) inset;
+    animation: slotFlash .9s ease-out;
+}
+
+/* 回転中ぼかし（Edge対応）*/
+.reel.spin-blur img{
+    filter: blur(5px) brightness(1.1);
+    -webkit-filter: blur(5px) brightness(1.1);
+    opacity:.7;
+}
+
+/* ===========================================
+   SLOT機能の最終強制スタイル（Edge対応版）
+   =========================================== */
+
+/* ▼ 回転中のぼかし（どんな競合があっても勝つ） */
+.reel.spin-blur img{
+    filter: blur(2.2px) brightness(1.05) !important;
+    -webkit-filter: blur(2.2px) brightness(1.05) !important;
+    opacity: .65 !important;
+    transform: scale(1.03) !important;
+}
+
+/* ▼ STOP後の光演出（slot-boxが対象） */
+.slot-box.stop-glow{
+    box-shadow:
+        0 0 28px 14px rgba(255,230,0,.95),
+        0 0 55px 25px rgba(255,200,0,.5) inset !important;
+    -webkit-box-shadow:
+        0 0 28px 14px rgba(255,230,0,.95),
+        0 0 55px 25px rgba(255,200,0,.5) inset !important;
+
+    animation: slotFlash .9s ease-out forwards !important;
+}
+
+@keyframes slotFlash{
+    0%   { transform:scale(1); }
+    50%  { transform:scale(1.05); }
+    100% { transform:scale(1); }
+}
+
+/* ▼ Edgeでfilterが消える現象対策 */
+.slot-img, .slot-img-wrap, .reel, .slot-box{
+    will-change: transform, filter !important;
+    backface-visibility: hidden !important;
+}
+
+/* スロット中のテキストは一旦非表示 */
+.slot-label {
+    display: none;
+}
+
+.slot-results{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    margin-top:10px;
+}
+
+.res-item{
+    background:#fff8d1;
+    border:2px solid #ffd24a;
+    padding:6px 12px;
+    border-radius:10px;
+    font-weight:bold;
+    min-width:70px;
+    text-align:center;
+    font-size:15px;
+}
+
+.slot-results .when  { order: 1; }
+.slot-results .where { order: 2; }
+.slot-results .who   { order: 3; }
+.slot-results .what  { order: 4; }
+
+
+/* ==========================
+   E1：回転中のスロット光演出
+========================== */
+.slot-box.spinning {
+    animation: slotShine 0.6s linear infinite alternate;
+    box-shadow:0 0 10px #ffe06b,
+               0 0 20px #ffcd4b inset;
+}
+@keyframes slotShine{
+    0%{box-shadow:0 0 8px #ffe06b;}
+    100%{box-shadow:0 0 16px #ffcd4b;}
+}
+
+/* ==========================
+   E10：STOPボタンの点滅
+========================== */
+.slot-btn.blink {
+    animation: blink 0.8s ease-in-out infinite alternate;
+}
+@keyframes blink{
+    0%{background:#ff6b81; transform:scale(1);}
+    100%{background:#ff3d5e; transform:scale(1.08);}
+}
+
+
+/* スロット枠の高さ → 3枚分見えるが中央強調 */
+.slot-box {
+    width:120px;
+    height:200px;          /* ←高さを伸ばしカード3枚が見える */
+    overflow:hidden;
+    border-radius:14px;
+    background:white;
+    position:relative;
+}
+
+/* リール縦配置＆滑らか */
+.reel{
+    display:flex;
+    flex-direction:column;
+    transition:transform .15s linear;
+}
+
+
+
+/* 回転中は全体ぼかし */
+.reel.spin-blur .slot-img{
+    filter:blur(5px) brightness(.9);
+    opacity:.75;
+}
+
+/* ★停止後に中央カードのみ鮮明にする */
+.slot-box.stopped .slot-item:nth-child(2) img{
+    filter:none !important;
+    opacity:1 !important;
+    transform:scale(1.04);
+}
+
+
+.slot-item{
+  height: 140px;   /* CARD_H と合わせる */
+}
+
+/* ピンク枠の中の「窓」の高さ = WINDOW_H に合わせる */
+.slot-window{
+  height: 160px;   /* ← WINDOW_H と同じにしておく */
+}
+
+/* 中の各列（slot-box）も同じくらいで OK */
+.slot-box{
+  height: 160px;
+  overflow: hidden;
+}
+
+/* レバー全体配置 */
+.slot-lever{
+    width:40px;
+    height:110px;
+    margin:10px auto 2px;
+    position:relative;
+    cursor:pointer;
+    transform-origin:bottom center;
+    transition: transform .25s ease;
+}
+
+/* 棒部分 */
+.lever-stick{
+    width:8px;
+    height:80px;
+    background:#666;
+    margin:0 auto;
+    border-radius:4px;
+}
+
+/* 先端の球 */
+.lever-ball{
+    width:34px;
+    height:34px;
+    background:#ff4b4b;
+    border-radius:50%;
+    position:absolute;
+    bottom:-15px;
+    left:50%;
+    transform:translateX(-50%);
+    box-shadow:0 0 10px rgba(255,0,0,.6);
+}
+
+/* ↓レバーを倒したときの状態 */
+.slot-lever.active{
+    transform:rotate(35deg);
+}
+
+/* 「PULL」文字 */
+.lever-label{
+    text-align:center;
+    color:#c63;
+    font-weight:bold;
+    margin-top:15px;
+    font-size:14px;
+}
+
+.operator-indicator{
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:12px;
+  color:#7c2d12;
+  background:#fff7ed;
+  border:2px solid #facc15;
+  border-radius:14px;
+  padding:8px 16px;
+  box-shadow:0 4px 0 #fde68a;
+}
+
+/* what固定モード専用 */
+.slot-box.fixed-what {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-box.fixed-what .reel {
+  transform: none !important;   /* JSのtranslateYを完全無効化 */
+}
+
+.slot-box.fixed-what .slot-item {
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-box.fixed-what .slot-img-wrap {
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.slot-box.fixed-what .slot-img {
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* ステップバー */
+.step-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0 25px;
+}
+
+.step {
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: #fde68a;
+  color: #7c2d12;
+  font-weight: bold;
+}
+
+.step.current {
+  background: #fb923c;
+  color: white;
+}
+
+h2 {
+  background: white;
+  padding: 15px 25px;
+  border-radius: 14px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  color: #7c2d12;
+  font-size: 26px;
+  font-weight: bold;
+  display: inline-block;
+  animation: fadePop 0.5s ease-out;
+}
+
+@keyframes fadePop {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* helpボタン */
+.help-button {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    background: #fb923c;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 2000;
+    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+}
+
+/* パネル本体 */
+.help-panel {
+    position: fixed;
+    top: 0;
+    right: -380px; /* 最初は画面外 */
+    width: 360px;
+    height: 100vh;
+    background: white;
+    box-shadow: -4px 0 10px rgba(0,0,0,0.3);
+    padding: 20px;
+    transition: right 0.4s ease;
+    z-index: 3000;
+    overflow-y: auto;
+}
+
+/* 開いた状態 */
+.help-panel.open {
+    right: 0;
+}
+
+/* 閉じるボタン */
+.close-btn {
+    font-size: 26px;
+    cursor: pointer;
+    float: right;
+}
+
+/* 画像 */
+.help-img {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}

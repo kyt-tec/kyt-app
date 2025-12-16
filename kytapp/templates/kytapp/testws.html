@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>WebSocketテスト</title>
+</head>
+<body>
+<h1>WebSocketテストページ</h1>
+
+<button onclick="sendMessage()">メッセージ送信</button>
+<p id="log"></p>
+
+<script>
+// WebSocket接続
+const ws = new WebSocket("ws://" + window.location.host + "/ws/test/");
+
+ws.onopen = () => {
+    document.getElementById("log").innerText = "接続しました！";
+};
+
+ws.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    document.getElementById("log").innerText = "受信: " + data.message;
+};
+
+ws.onclose = () => {
+    document.getElementById("log").innerText = "切断されました";
+};
+
+function sendMessage() {
+    ws.send(JSON.stringify({ "message": "こんにちはWebSocket！" }));
+}
+</script>
+
+</body>
+</html>

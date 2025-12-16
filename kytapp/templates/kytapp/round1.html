@@ -1,0 +1,560 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Round 1: カードをめくって状況を決めよう</title>
+  <link rel="stylesheet" href="{% static 'kytapp/css/round1.css' %}">
+</head>
+
+<body>
+
+
+<!-- 操作中表示エリア -->
+<div id="active-user" style="
+  margin-bottom:10px;
+  padding:8px 12px;
+  background:#fff3cd;
+  border:2px solid #ffecb5;
+  border-radius:12px;
+  font-weight:bold;
+"></div>
+
+
+<div class="app-layout">
+
+  <!-- 左側カラーバー -->
+  <div class="left-bar"></div>
+
+  <!-- メイン -->
+  <div class="main-area">
+
+    <div class="step-bar">
+      <span class="step current">Round 1</span>
+      <span class="step">Round 2</span>
+      <span class="step">Round 3</span>
+      <span class="step">Round 4</span>
+    </div>
+
+    <h2>Round 1: それぞれのスロットを回し、危険の状況を想定しよう</h2>
+
+    <div class="panel-box">
+      <form method="post">
+        {% csrf_token %}
+        {{ formset.management_form }}
+        {% for form in formset %}
+        {{ form.id }}
+
+        <div class="help-button" onclick="openHelp()">
+          ？
+        </div>
+
+        <div id="helpPanel" class="help-panel">
+            <span class="close-btn" onclick="closeHelp()">×</span>
+
+            <h3>道具の使い方</h3>
+            <p>What カードの説明です</p>
+
+            <img src="{% static 'kytapp/images/what_task.png' %}" class="help-img">
+        </div>
+
+
+        <div class="participant-card">
+          <h3>{{ forloop.counter }}人目（{{ form.name }}）</h3>
+          <!-- ▼ レバーボタン -->
+          <div class="slot-lever" onclick="pullLever({{forloop.counter0}},this)">            
+            <div class="lever-stick"></div>
+            <div class="lever-ball"></div>
+          </div>
+          <p class="lever-label">PULL</p>
+
+          
+
+          <div id="operator-indicator-{{ forloop.counter0 }}" style="
+            margin: 10px 0 15px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #7c2d12;
+            ">
+            レバーを引いてみよう！
+          </div>
+
+          
+          <!-- === WHO === -->
+          <div class="slot-machine sloto-machine">
+
+            <div class="slot-window">
+              <div class="slot-box who" data-i="{{forloop.counter0}}">
+                <div class="reel" id="reel-who-{{forloop.counter0}}">
+                  {% for c in card_images.who %}
+                  <div class="slot-item">
+                    <div class="slot-img-wrap">
+                      <img src="{% static 'kytapp/card_back.jpg' %}" 
+                        class="slot-img slot-default" 
+                        data-real="{% static 'kytapp/'|add:c.image %}">
+                    </div>  
+                    <p class="slot-label">{{ c.text }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+
+          <!-- === WHERE === -->
+          
+            
+              <div class="slot-box where" data-i="{{forloop.counter0}}">
+                <div class="reel" id="reel-where-{{forloop.counter0}}">
+                  {% for c in card_images.where %}
+                  <div class="slot-item">
+                    <div class="slot-img-wrap">
+                      <img src="{% static 'kytapp/card_back.jpg' %}" 
+                        class="slot-img slot-default" 
+                        data-real="{% static 'kytapp/'|add:c.image %}">
+                    </div>
+                    <p class="slot-label">{{ c.text }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+          
+
+          <!-- === WHEN === -->
+          
+            
+              <div class="slot-box when" data-i="{{forloop.counter0}}">
+                <div class="reel" id="reel-when-{{forloop.counter0}}">
+                  {% for c in card_images.when %}
+                  <div class="slot-item">
+                    <div class="slot-img-wrap">
+                      <img src="{% static 'kytapp/card_back.jpg' %}" 
+                        class="slot-img slot-default" 
+                        data-real="{% static 'kytapp/'|add:c.image %}">
+                    </div>
+                    <p class="slot-label">{{ c.text }}</p>
+                  </div>
+                  {% endfor %}
+                </div>
+              </div>
+              
+          
+          <!-- === WHAT === -->
+          
+            
+              <div class="slot-box what {% if session.round1_mode == 'fixed_what' %}fixed-what{% endif %}" 
+                  data-i="{{forloop.counter0}}">
+                <div class="reel" id="reel-what-{{forloop.counter0}}">
+
+                {% if session.round1_mode == 'fixed_what' %}
+                  {% with c=card_images.what.0 %}
+                  <div class="slot-item">
+                    <div class="slot-img-wrap">
+                      <img src="{% static 'kytapp/'|add:c.image %}"
+                          class="slot-img">
+                    </div>
+                    <p class="slot-label">{{ c.text }}</p>
+                  </div>
+                  {% endwith %}
+                {% else %}   
+                  {% for c in card_images.what %}
+                  <div class="slot-item">
+                    <div class="slot-img-wrap">
+                      <img src="{% static 'kytapp/card_back.jpg' %}" 
+                        class="slot-img slot-default" 
+                        data-real="{% static 'kytapp/'|add:c.image %}">
+                    </div>
+                    <p class="slot-label">{{ c.text }}</p>
+                  </div>
+                  {% endfor %}
+                {% endif %}             
+                </div>
+              </div>
+            </div> 
+
+            
+
+            <div style="display:flex;gap:10px;">
+              <button type="button" class="slot-btn who" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','who')">Who:STOP</button>
+              <input type="hidden" name="form-{{forloop.counter0}}-who" id="who-hidden-{{forloop.counter0}}">
+              <button type="button" class="slot-btn where" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','where')">Where:STOP</button>
+              <input type="hidden" name="form-{{forloop.counter0}}-where" id="where-hidden-{{forloop.counter0}}">
+              <button type="button" class="slot-btn when" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','when')">When:STOP</button>
+              <input type="hidden" name="form-{{forloop.counter0}}-when" id="when-hidden-{{forloop.counter0}}">
+              {% if session.round1_mode != 'fixed_what' %}
+              <button type="button" class="slot-btn what" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','what')">What:STOP</button>
+              {% endif %}
+              <input type="hidden" name="form-{{forloop.counter0}}-what" id="what-hidden-{{forloop.counter0}}">
+            </div>
+
+            <div class="slot-results" id="results-{{forloop.counter0}}">
+              <p class="res who"><b>で</b> <span class="res-item" id="res-who-{{forloop.counter0}}"></span></p>
+              <p class="res where"><b>に</b> <span class="res-item" id="res-where-{{forloop.counter0}}"></span></p>
+              <p class="res when"><b></b> <span class="res-item" id="res-when-{{forloop.counter0}}"></span></p>
+              <p class="res what"><b>が</b> <span class="res-item" id="res-what-{{forloop.counter0}}"></span><b>を</b></p>
+            </div>
+
+
+          </div>
+
+
+          <div class="input-block">
+            <label>どのように：</label> {{ form.how }}
+          </div>
+          <div class="input-block">
+            <label>想定されるけが：</label> {{ form.expected_injury }}
+          </div>
+        </div>
+        {% endfor %}
+
+        <button type="submit" class="next-button">次へ（Round 2）</button>
+      </form>
+
+
+        
+    </div>
+
+  </div>
+</div>
+
+<!-- ▼ JavaScript -->
+<script>
+console.log("NEW pullLever loaded")
+const participantNames = [
+    {% for p in participants %}
+      "{{ p.name }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+];
+const sessionId = "{{ session.id }}";
+const protocol  = location.protocol === "https:" ? "wss" : "ws";
+const socket    = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
+
+socket.onopen = ()=>console.log("🟢 WebSocket connected");
+
+const clientId = Math.random().toString(36).slice(2);
+
+let spin = {};
+const CARD_H   = 140;
+const WINDOW_H = 160;
+const BASE_OFFSET = (WINDOW_H - CARD_H) / 2 - 100;
+
+document.addEventListener("DOMContentLoaded",()=>{
+  const count = {{ session.participant_count }};
+  const cats  = 
+    ("{{ session.round1_mode }}" === "fixed_what")
+      ?["who","where","when"]
+      : ["who","where","when","what"];
+  for(let i=0;i<count;i++){
+    cats.forEach(cat=>{
+      const reel = document.getElementById(`reel-${cat}-${i}`);
+      if(reel) reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+    });
+  }
+});
+
+/* ===========================
+   WebSocket 受信
+=========================== */
+socket.onmessage = function(e){
+  const msg = JSON.parse(e.data);
+
+  // 自分の送信は無視（echo防止）
+  if (msg.senderId && msg.senderId === clientId) return;
+
+  if (msg.type === "slot_start"){
+    runSlots(msg.index);
+  }
+
+  if (msg.type === "slot_stop"){
+    // ★ 半角カンマ , に注意
+    doStop(msg.index, msg.category, msg.resultText);
+  }
+
+  if(msg.type === "operator"){
+      showOperator(msg.index, msg.name);
+  }
+
+  if(msg.type === "typing"){
+    if(msg.senderId === clientId) return;
+
+    const target = document.querySelector(
+      `textarea[name="form-${msg.index}-${msg.field}"]`
+    );
+    if(target){
+      target.value = msg.value;
+    }
+  }
+
+
+};
+
+/* ===========================
+   レバー START
+=========================== */
+window.pullLever = function(i,lever){
+  console.log("pullLever called", i, lever);
+
+  if ("{{ session.round1_mode }}" === "fixed_what") {    
+
+    const text = "{{ card_images.what.0.text }}";
+
+    const res = document.getElementById(`res-what-${i}`);
+    if (res) res.textContent = text;
+
+    const hidden = document.getElementById(`what-hidden-${i}`);
+    if (hidden) hidden.value = text;
+
+    socket.send(JSON.stringify({
+      type: "slot_stop",
+      index: i,
+      category: "what",
+      resultText: text,
+      senderId: clientId
+    }));
+  }
+//  if ("{{ session.round1_mode }}" !== "fixed_what") {
+//    spinSlot(i, 'what');
+//  }
+
+  //const lever = event.currentTarget;
+  lever.classList.add("active");
+
+  setTimeout(()=>{
+    lever.classList.remove("active");
+
+    // ★ 操作中の参加者名
+    const operatorName = participantNames[i];
+
+    // ★ 操作中の名前を送信
+    socket.send(JSON.stringify({
+      type: "operator",
+      index: i,
+      name: operatorName,
+      senderId: clientId
+    }));
+
+    // 自分は即回す
+    runSlots(i);
+
+    // 他端末へ通知（slot_startは index だけでOK）
+    socket.send(JSON.stringify({
+      type: "slot_start",
+      index: i,
+      senderId: clientId
+    }));
+  },220);
+};
+
+function showOperator(index, name){
+  // 全員分を一度リセット
+  document.querySelectorAll('[id^="operator-indicator-"]').forEach(el=>{
+    el.textContent = "レバーを引いてみよう！";
+  });
+
+  // 操作中の人だけ表示
+  const target = document.getElementById(`operator-indicator-${index}`);
+  if(target){
+    target.textContent = `👤 ${name} が操作中`;
+  }
+}
+
+
+function runSlots(i){
+  const cats = 
+    ("{{ session.round1_mode }}" === "fixed_what")
+      ?["who","where","when"]
+      : ["who","where","when","what"];
+
+
+  // 裏→表
+  cats.forEach(cat=>{
+    document.querySelectorAll(`#reel-${cat}-${i} .slot-default`).forEach(img=>{
+      if(img.dataset.real) img.src = img.dataset.real;
+    });
+  });
+
+  cats.forEach(cat=>{
+    const reel = document.getElementById(`reel-${cat}-${i}`);
+    if(!reel) return;
+
+    const box = reel.closest(".slot-box");
+    reel.classList.remove("spin-blur");
+    if(box){
+      box.classList.remove("stop-glow","spinning");
+      box.classList.add("spinning");
+    }
+
+    const btn = document.querySelector(`button.slot-btn[onclick="stopSlot('${i}','${cat}')"]`);
+    if(btn) btn.classList.add("blink");
+
+    startSlot(i,cat);
+  });
+}
+
+function startSlot(i,cat){
+  
+  if (cat === "what" && "{{ session.round1_mode }}" === "fixed_what") {
+    return; // ★絶対に触らない
+  }
+
+
+  const key  = `${i}-${cat}`;
+  const reel = document.getElementById(`reel-${cat}-${i}`);
+  if(!reel) return;
+
+  const box = reel.closest(".slot-box");
+  if(box) box.classList.add("spin-blur");
+  reel.classList.add("spin-blur");
+
+  reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+
+  if(spin[key]) clearInterval(spin[key]);
+
+  spin[key] = setInterval(()=>{
+    reel.style.transform = `translateY(${BASE_OFFSET - CARD_H}px)`;
+    setTimeout(()=>{
+      reel.appendChild(reel.children[0]);
+      reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+    },80);
+  },80);
+}
+
+/* ===========================
+   STOP（押した人が結果を決めて送る）
+=========================== */
+window.stopSlot = function(i,cat){
+
+  if (cat === "what" && "{{ session.round1_mode }}" === "fixed_what") {
+    const text = "{{ card_images.what.0.text }}";
+
+    const res = document.getElementById(`res-what-${i}`);
+    if (res) res.innerText = text;
+
+    const hidden = document.getElementById(`what-hidden-${i}`);
+    if (hidden) hidden.value = text;
+
+    socket.send(JSON.stringify({
+      type: "slot_stop",
+      index: i,
+      category: "what",
+      resultText: text,
+      senderId: clientId
+    }));
+
+    return;
+  }
+  const reel = document.getElementById(`reel-${cat}-${i}`);
+  if(!reel) return;
+
+  // ★今見えてる“中央”を採用（あなたの仕様が children[1] 中央ならここ）
+  const centerItem = reel.children[1];
+  const resultText = centerItem?.querySelector(".slot-label")?.innerText || "";
+
+  // 自分は即停止＆確定
+  doStop(i,cat,resultText);
+
+  // 他端末へ「この結果で止めろ」と送る
+  socket.send(JSON.stringify({
+    type: "slot_stop",
+    index: i,
+    category: cat,
+    resultText: resultText,
+    senderId: clientId
+  }));
+
+  const indicator = document.getElementById(
+    "operator-indicator-${i}"
+  );
+  if(indicator){
+    indicator.textContent = "";
+  }
+};
+
+/* ===========================
+   実際の停止処理（全端末共通）
+=========================== */
+async function doStop(i,cat,resultText){
+  const key  = `${i}-${cat}`;
+  const reel = document.getElementById(`reel-${cat}-${i}`);
+  if(!reel) return;
+
+  const box = reel.closest(".slot-box");
+
+  if(spin[key]){
+    clearInterval(spin[key]);
+    delete spin[key];
+  }
+
+  // 減速っぽい演出（軽く）
+  let delay = 90;
+  for(let t=0; t<6; t++){
+    reel.style.transform = `translateY(${BASE_OFFSET - CARD_H}px)`;
+    reel.appendChild(reel.children[0]);
+    await new Promise(r=>setTimeout(r, delay));
+    reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+    delay += 40;
+  }
+
+  // ★結果を合わせる（全端末で一致させる本体）
+  // reel.children[1] のテキストが resultText になるまで回す
+  for(let guard=0; guard<reel.children.length+2; guard++){
+    const now = reel.children[1]?.querySelector(".slot-label")?.innerText || "";
+    if(now === resultText) break;
+    reel.appendChild(reel.children[0]);
+  }
+
+  reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+
+  // エフェクト
+  reel.classList.remove("spin-blur");
+  if(box){
+    box.classList.add("stop-glow");
+    box.classList.remove("spinning");
+    box.classList.remove("spin-blur");
+  }
+
+  const btn = document.querySelector(`button.slot-btn[onclick="stopSlot('${i}','${cat}')"]`);
+  if(btn) btn.classList.remove("blink");
+
+  // hidden＆表示
+  const hidden = document.getElementById(`${cat}-hidden-${i}`);
+  if(hidden) hidden.value = resultText;
+
+  const resSpan = document.getElementById(`res-${cat}-${i}`);
+  if(resSpan) resSpan.textContent = resultText;
+
+  console.log(`🎰 STOP [${i}][${cat}] =>`, resultText);
+}
+
+document.querySelectorAll("textarea").forEach(textarea => {
+  textarea.addEventListener("input", function(){
+    const name = this.name;  // form-0-how
+    if(!name) return;
+
+    const parts = name.split("-");
+    const index = parts[1];
+    const field = parts[2];
+
+    socket.send(JSON.stringify({
+      type: "typing",
+      index: index,
+      field: field,
+      value: this.value,
+      senderId: clientId
+    }));
+  });
+});
+
+function openHelp() {
+    document.getElementById("helpPanel").classList.add("open");
+}
+function closeHelp() {
+    document.getElementById("helpPanel").classList.remove("open");
+}
+
+
+</script>
+
+
+
+
+</body>
+</html>

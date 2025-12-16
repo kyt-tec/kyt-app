@@ -1,0 +1,44 @@
+<!-- templates/kytapp/start.html -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF‑8">
+    <title>KYT をはじめる</title>
+</head>
+<body>
+    <h1>KYTを始める</h1>
+    <form method="post">
+        {% csrf_token %}
+
+        <label for="id_participant_count">参加者人数（1〜10人）:</label>
+        <select name="participant_count" id="id_participant_count">
+          <option value="1">1人</option>
+          <option value="2">2人</option>
+          <option value="3">3人</option>
+          <option value="4">4人</option>
+          <option value="5">5人</option>
+          <option value="6">6人</option>
+          <option value="7">7人</option>
+          <option value="8">8人</option>
+          <option value="9">9人</option>
+          <option value="10">10人</option>
+        </select>
+        <br><br>
+
+        <fieldset>
+            <legend>モードを選ぶ</legend>
+            <label>
+                <input type="radio" name="round1_mode" value="random" checked>
+                    すべてランダム
+            </label><br>
+
+            <label>
+                <input type="radio" name="round1_mode" value="fixed_what">
+                    whatを固定する
+            </label>
+        </fieldset>
+        <br>
+        <button type="submit">スタート</button>
+    </form>
+</body>
+</html>

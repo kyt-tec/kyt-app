@@ -1,0 +1,382 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Round 2 | 危険度チェック</title>
+  <link rel="stylesheet" href="{% static 'kytapp/css/round2.css' %}">
+  
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #FFF7ED, #FFE4C7);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+      color: #B45309;
+      font-size: 28px;
+    }
+
+    h3 {
+      margin-top: 40px;
+      color: #92400E;
+    }
+
+    /* テーブルのカード風デザイン */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 10px;
+      margin-top: 15px;
+    }
+
+    th {
+      background: #FDBA74;
+      color: #7C2D12;
+      padding: 12px;
+      border-radius: 12px;
+    }
+    .cell.when  { order: 1; }
+    .cell.where { order: 2; }
+    .cell.who   { order: 3; }
+    .cell.what  { order: 4; }
+
+    td {
+      background: white;
+      padding: 12px;
+      text-align: center;
+      border-radius: 12px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+      font-size: 15px;
+    }
+
+    /* 危険度バー */
+    .risk-bar {
+      height: 18px;
+      border-radius: 999px;
+      background: #FDE68A;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .risk-bar-inner {
+      height: 100%;
+      background: linear-gradient(90deg, #FCD34D, #F97316);
+      text-align: right;
+      color: white;
+      font-size: 12px;
+      font-weight: bold;
+      padding-right: 6px;
+      transition: width 0.3s ease;
+    }
+
+    /* 危険MAXの人 */
+    .highlight {
+      background: #FEF3C7 !important;
+      border: 3px solid #FB7185;
+      font-weight: bold;
+      color: #9F1239;
+      padding: 4px 10px;
+      border-radius: 999px;
+      display: inline-block;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    /* ボタン */
+    .btn {
+      margin-top: 25px;
+      padding: 14px 35px;
+      border: none;
+      border-radius: 999px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      background: linear-gradient(135deg, #FB923C, #F97316);
+      color: white;
+      box-shadow: 0 4px 0 #EA580C;
+      transition: 0.1s;
+    }
+    .btn:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #EA580C;
+    }
+    .btn-wrap {
+      text-align: center;
+    }
+
+    select {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #FCD34D;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="step-bar">
+  <span class="step">Round 1</span>
+  <span class="step current">Round 2</span>
+  <span class="step">Round 3</span>
+  <span class="step">Round 4</span>
+</div>
+
+<h2>Round 2 : 危険度チャレンジ 🎯（{{ participant_count }}人）</h2>
+{% block instruction %}
+<div class="instruction-box teacher">
+  リーダーの人は班の意見をまとめて危険度を評価しよう
+</div>
+<div id="user-status" style="
+  text-align:center;
+  font-size:14px;
+  margin-bottom:16px;
+  color:#92400E;
+"></div>
+
+
+<h3>📋 Round1 の結果</h3>
+<div class="round2-table">
+  <div class="round2-row header">
+    <div class="cell name">名前</div>
+    <div class="cell who">だれ</div>
+    <div class="cell where">どこ</div>
+    <div class="cell when">いつ</div>
+    <div class="cell what">なに</div>
+    <div class="cell how">どのように</div>
+    <div class="cell expected">けが</div>
+  </div>
+  {% for p in participants %}
+  <div class="round2-row">
+    <div class="cell name">{{ p.name }}</div>
+    <div class="cell who">{{ p.who }}</div>
+    <div class="cell where">{{ p.where }}</div>
+    <div class="cell when">{{ p.when }}</div>
+    <div class="cell what">{{ p.what }}</div>
+    <div class="cell how">{{ p.how }}</div>
+    <div class="cell expected">{{ p.expected_injury }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<h3>⚠ 危険度を計算しよう</h3>
+<div class="instruction-box"> 
+  重篤度「１」…かすり傷など1か月以内に治るけが 「３」…骨折など、1か月以上かかるけが 「５」…治らないケガ、命にかかわるけが<br>
+  可能性「５」…よくある  「3」…ときどき  「１」…あまり 
+</div>
+{% endblock %}
+
+
+<form method="post">
+  {% csrf_token %}
+  {{ formset.management_form }}
+
+  <table id="risk-table">
+  <tr>
+    <th>名前</th>
+    <th>重篤度</th>
+    <th>可能性</th>
+    <th>危険度</th>
+  </tr>
+
+  {% for form in formset %}
+  {% with instance=form.instance %}
+  <tr>
+    {{ form.id }}
+    <td>{{ instance.participant.name }}</td>
+    <td>{{ form.severity }}</td>
+    <td>{{ form.probability }}</td>
+    <td data-pk="{{ instance.pk }}">
+      {% if instance.severity and instance.probability %}
+        {% if most_dangerous_pks and instance.pk in most_dangerous_pks %}
+          <div class="highlight">★ MAX {{ instance.risk_score }}</div>
+        {% else %}
+          <div class="risk-bar">
+            <div class="risk-bar-inner" style="width: calc({{ instance.risk_score }} * 20%);">
+              {{ instance.risk_score }}
+            </div>
+          </div>
+        {% endif %}
+      {% else %}
+        -
+      {% endif %}
+    </td>
+  </tr>
+  {% endwith %}
+  {% endfor %}
+</table>
+
+
+  <div class="btn-wrap">
+    <button type="submit" name="action" value="update" class="btn">🔄 計算する</button>
+    <button type="submit" name="action" value="next" class="btn">➡ 次へ</button>
+  </div>
+</form>
+
+
+<script>
+const sessionId = "{{ session.id }}";
+const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+const socket = new WebSocket(
+  `${protocol}://${window.location.host}/ws/kyt/${sessionId}/`
+);
+
+socket.onopen = () => {
+  console.log("✅ Round2 WebSocket connected");
+};
+
+/* =========================
+   送信処理
+========================= */
+
+// 名前（evaluator_name）の同期
+document.querySelectorAll('input[type="text"]').forEach((input, index) => {
+  input.addEventListener("input", function() {
+    socket.send(JSON.stringify({
+      type: "name_update",
+      index: index,
+      value: this.value
+    }));
+  });
+});
+
+// select（重篤度・可能性）の同期
+// ===== select 同期（送信）=====
+document.querySelectorAll("select").forEach((select) => {
+  select.addEventListener("change", function() {
+    const nameParts = this.name.split("-");
+
+    socket.send(JSON.stringify({
+      type: "risk_update",
+      index: nameParts[1],          // 0,1,2...
+      field: nameParts[2],          // severity / probability
+      value: this.value
+    }));
+  });
+});
+
+/* =========================
+   ★ 計算ボタン同期
+========================= */
+
+const calcBtn = document.querySelector('button[name="action"][value="update"]');
+
+
+if (calcBtn) {
+  calcBtn.addEventListener("click", function() {
+    socket.send(JSON.stringify({
+      type: "calc_pressed"
+    }));
+  });
+}
+
+
+
+
+/* =========================
+   受信処理
+========================= */
+
+socket.onmessage = function(event) {
+  const data = JSON.parse(event.data);
+
+
+  // 名前の同期
+  if (data.type === "name_update") {
+    const inputs = document.querySelectorAll('input[type="text"]');
+    if (inputs[data.index]) {
+      inputs[data.index].value = data.value;
+    }
+  }
+
+  // select の同期
+  if (data.type === "risk_update") {
+  const target = document.querySelector(
+    `[name="evaluations-${data.index}-${data.field}"]`
+  );
+  if (target) {
+    target.value = data.value;
+  }
+}
+
+
+  // ★マーク同期
+  if (data.type === "star_update") {
+    const riskTable = document.getElementById("risk-table");
+    if (!riskTable) {
+      console.warn("risk-table not ready yet");
+      return;
+    }
+
+    const rows = Array.from(
+      riskTable.querySelectorAll("tr")
+    ).slice(1); // ヘッダ除外
+
+    const row = rows[data.index];
+    if (!row) return;
+
+    const cell = row.cells[3];
+    if (!cell) return;
+
+    cell.innerHTML = `<div class="highlight">★ MAX ${data.score}</div>`;
+  }
+
+  if (data.type === "risk_result") {
+  const table = document.getElementById("risk-table");
+  if (!table) return;
+
+  const rows = table.querySelectorAll("tr");
+
+  data.rows.forEach((rowData, index) => {
+    const tr = rows[index + 1]; // ヘッダ分 +1
+    if (!tr) return;
+
+    const cell = tr.cells[3];
+    if (!cell) return;
+
+    if (rowData.score == null) {
+      cell.textContent = "-";
+      return;
+    }
+
+    if (rowData.is_max) {
+      cell.innerHTML = `<div class="highlight">★ MAX ${rowData.score}</div>`;
+    } else {
+      cell.innerHTML = `
+        <div class="risk-bar">
+          <div class="risk-bar-inner"
+               style="width: calc(${rowData.score} * 20%);">
+            ${rowData.score}
+          </div>
+        </div>
+      `;
+    }
+  });
+}
+
+
+
+  if (data.type === "calc_pressed") {
+    console.log("✅ 計算ボタンが他の人に押されました");
+  }
+
+ 
+
+
+    
+
+};
+</script>
+
+</body>
+</html>

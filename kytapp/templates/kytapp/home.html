@@ -1,0 +1,129 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ホーム | KYT</title>
+
+
+
+<style>
+body {
+    background: #fff7ed; /* R1〜R4と同じ背景色 */
+    font-family: "Segoe UI", sans-serif;
+}
+
+.home-box{
+    background:white;
+    text-align:center;
+    width:60%;
+    margin:60px auto;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+}
+
+.name-input{
+    font-size:18px;
+    width:70%;
+    padding:6px 10px;
+    margin:6px 0;
+}
+
+.start-btn{
+    margin-top:20px;
+    padding:15px 45px;
+    font-size:22px;
+    font-weight:bold;
+    border-radius:35px;
+    background:#ff8a3d;
+    color:white;
+    cursor:pointer;
+    border:none;
+}
+.start-btn:hover{
+    opacity:.9;
+    transform:scale(1.05);
+}
+
+.participant-row{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    justify-content:center;
+    margin:12px 0;
+}
+.badge{
+    width:26px;
+    height:26px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:white;
+    font-weight:bold;
+}
+</style>
+</head>
+
+<body>
+
+<h2 style="text-align:center; color:#7c2d12;">参加者の名前を入力してください</h2>
+
+<div class="home-box">
+<form method="POST">
+    {% csrf_token %}
+    {{ formset.management_form }}
+
+    {% for row in rows %}
+        <div class="participant-row">
+
+            {{ row.form.id }}
+            <!-- 🔵 色バッジ -->
+            <div class="badge" style="background: {{ row.participant.color|default:'#888888' }};">
+                {{ forloop.counter }}
+            </div>
+
+            <!-- 名前入力（そのまま） -->
+            {{ row.form.name }}
+        </div>
+        <hr style="width:75%; opacity:0.4;">
+    {% endfor %}
+
+    <button class="start-btn" type="submit">▶ KYTを始める</button>
+</form>
+</div>
+<script>
+const sessionId = "{{ session.id }}";
+const protocol = location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
+
+socket.onopen = () => console.log("🟢 WebSocket(Home) connected");
+
+// 🔥 名前入力 → WebSocket送信
+document.querySelectorAll("input[name$='-name']").forEach(input => {
+    input.addEventListener("input", function() {
+        const name = this.name;       // p-0-name
+        const index = name.split("-")[1]; // 0の部分だけ取る
+
+        socket.send(JSON.stringify({
+            type: "name_update",
+            index: index,
+            value: this.value
+        }));
+    });
+});
+
+// 🔥 受信 → 他の端末にも反映
+socket.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+
+    if(data.type === "name_update"){
+        const target = document.querySelector(`input[name="p-${data.index}-name"]`);
+        if(target) target.value = data.value;
+    }
+};
+</script>
+
+</body>
+</html>

@@ -1,0 +1,109 @@
+.instruction-box {
+  margin: 12px auto 20px;
+  padding: 14px 18px;
+  max-width: 900px;
+  background: #fff7ed;
+  border-left: 6px solid #fb923c;
+  font-size: 14.5px;
+  font-weight: bold;
+  color: #7c2d12;
+  animation: fadeInUp 1.5s ease-out;
+}
+
+.instruction-box.teacher {
+  max-width: 500px;
+  margin: 12px auto;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-left: 4px solid #64748b;
+  font-size: 18px;
+  color: #334155;
+  font-style: italic;
+}
+.instruction-box.teacher {
+  animation: fadeInUp 1.5s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.step-bar {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 15px 0 25px;
+}
+
+.step {
+  padding: 6px 18px;
+  border-radius: 999px;
+  background: #fde68a;
+  color: #7c2d12;
+  font-weight: bold;
+}
+
+.step.current {
+  background: #fb923c;
+  color: white;
+}
+
+.round2-table {
+  display: table;
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* 元の table と同じ */
+  margin-top: 15px;
+}
+
+.round2-row {
+  display: table-row;
+}
+
+.round2-row.header .cell {
+  display: table-cell;
+  background: #FDBA74;
+  color: #7C2D12;
+  padding: 12px;
+  border-radius: 12px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.round2-row:not(.header) .cell {
+  display: table-cell;
+  background: white;
+  padding: 12px;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+  font-size: 15px;
+}
+
+.cell {
+  box-sizing: border-box;
+}
+
+
+
+.cell.when      { order: 1; }
+.cell.where     { order: 2; }
+.cell.who       { order: 3; }
+.cell.what      { order: 4; }
+.cell.how       { order: 5; }
+.cell.expected  { order: 6; }
+.cell.name      { order: 0; } /* 名前は先頭 */
+
+
+
+
+
+
+
