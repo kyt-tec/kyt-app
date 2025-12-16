@@ -22,7 +22,7 @@ from kytapp import views
 from django.shortcuts import redirect
 
 urlpatterns = [
-    path('', lambda request: redirect('home')),
+    path('', lambda request: redirect('kytapp:home')),
     path('', views.top, name='top'),
     path('admin/', admin.site.urls),
     path('kyt/', include('kytapp.urls'))
