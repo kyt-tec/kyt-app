@@ -59,6 +59,14 @@ class StartNewSessionView(CreateView):
 
 COLORS = ["#ff6b6b", "#4dabf7", "#51cf66", "#ffa94d",
           "#9775fa", "#f06595", "#63e6be", "#d0bfff"]
+class HomeIndexView(View):
+    template_name = 'kytapp/home.html'
+
+    def get(self, request):
+        # セッション一覧を出す or 新規作成画面
+        return render(request, self.template_name)
+
+
 
 class HomeView(View):
     template_name = 'kytapp/home.html'

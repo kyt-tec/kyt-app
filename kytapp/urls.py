@@ -6,6 +6,7 @@ from .views import Round3View
 from .views import Round4View
 from .views import StartNewSessionView
 from .views import HomeView
+from .views import HomeIndexView
 from .views import CompleteView
 from django.urls import path
 from django.shortcuts import render
@@ -14,6 +15,7 @@ app_name = 'kytapp'
 
 urlpatterns = [
     path('start/', StartNewSessionView.as_view(), name='start'),
+    path('home/', HomeIndexView.as_view(), name='home'),
     path('home/<int:pk>/', HomeView.as_view(), name='home'),
     path('round1/<int:pk>/', Round1View.as_view(), name='round1'),
     path('round2/<int:pk>/', Round2View.as_view(), name='round2'),
