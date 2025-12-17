@@ -144,6 +144,11 @@ STATICFILES_DIRS = [
     BASE_DIR / "kytapp" / "static",
 ]
 
+CSRF_TRUSTED_ORIGINS = [
+    "https://kyt-app.onrender.com",
+]
+
+
 DEBUG = True
 
 
