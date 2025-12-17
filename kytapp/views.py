@@ -53,7 +53,7 @@ class StartNewSessionView(CreateView):
      #   return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse('kytapp:home', kwargs={'pk': self.object.pk})
+        return reverse('kytapp:home_detail', kwargs={'pk': self.object.pk})
 
 
 
