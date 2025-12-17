@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>グループ選択 | KYT</title>
+<style>
+body {
+    background:#fff7ed;
+    font-family:"Segoe UI", sans-serif;
+}
+.box{
+    background:white;
+    width:60%;
+    margin:60px auto;
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 4px 15px rgba(0,0,0,.2);
+    text-align:center;
+}
+.group{
+    margin:15px 0;
+}
+.group a{
+    display:block;
+    padding:15px;
+    font-size:20px;
+    font-weight:bold;
+    background:#ff8a3d;
+    color:white;
+    border-radius:30px;
+    text-decoration:none;
+}
+.group a:hover{
+    opacity:.9;
+}
+</style>
+</head>
+<body>
+
+<h2 style="text-align:center; color:#7c2d12;">グループを選んでください</h2>
+
+<div class="box">
+{% if sessions %}
+    {% for session in sessions %}
+        <div class="group">
+            <a href="{% url 'kytapp:home' pk=session.pk %}">
+                グループ {{ forloop.counter }}（{{ session.participant_count }}人）
+            </a>
+        </div>
+    {% endfor %}
+{% else %}
+    <p>先生がまだグループを作成していません。</p>
+{% endif %}
+</div>
+
+</body>
+</html>

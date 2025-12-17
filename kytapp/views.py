@@ -69,7 +69,7 @@ class HomeIndexView(View):
 
 
 class HomeView(View):
-    template_name = 'kytapp/home.html'
+    template_name = 'kytapp/group_select.html'
 
     def get(self, request, pk):
         session = get_object_or_404(KYTSession, pk=pk)
