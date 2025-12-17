@@ -63,8 +63,11 @@ class HomeIndexView(View):
     template_name = 'kytapp/group_select.html'
 
     def get(self, request):
+        sessions = KYTSession.objects.order_by('id')
         # セッション一覧を出す or 新規作成画面
-        return render(request, self.template_name)
+        return render(request, self.template_name,{
+            'sessions': sessions
+        })
 
 
 
