@@ -4,3 +4,6 @@ channels-redis
 daphne
 gunicorn
 djangorestframework
+Pillow
+
+
