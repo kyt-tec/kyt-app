@@ -43,7 +43,7 @@ body {
 {% if sessions %}
     {% for session in sessions %}
         <div class="group">
-            <a href="{% url 'kytapp:home' pk=session.pk %}">
+            <a href="{% url 'kytapp:home_detail' pk=session.pk %}">
                 グループ {{ forloop.counter }}（{{ session.participant_count }}人）
             </a>
         </div>
