@@ -208,7 +208,7 @@
     </div>
 
 </div>
-
+<script src="{% static 'kytapp/js/ws_common.js' %}"></script>
 <!-- 追加ボタンのJS -->
 <script>
 
@@ -219,6 +219,7 @@ const sessionId = "{{ session.id }}";
 const protocol = location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
 const clientId = Math.random().toString(36).slice(2);
+startPing(socket);
 
 
 socket.onopen = ()=> console.log("🟢 Round3 WebSocket connected");

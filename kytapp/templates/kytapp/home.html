@@ -93,10 +93,16 @@ body {
     <button class="start-btn" type="submit">▶ KYTを始める</button>
 </form>
 </div>
+<script src="{% static 'kytapp/js/ws_common.js' %}"></script>
 <script>
+
+
+
 const sessionId = "{{ session.id }}";
 const protocol = location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
+
+startPing(socket);
 
 socket.onopen = () => console.log("🟢 WebSocket(Home) connected");
 

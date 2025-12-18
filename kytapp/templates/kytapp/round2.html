@@ -222,10 +222,13 @@
   </div>
 </form>
 
-
+<script src="{% static 'kytapp/js/ws_common.js' %}"></script>
 <script>
 const sessionId = "{{ session.id }}";
 const protocol = window.location.protocol === "https:" ? "wss" : "ws";
+
+startPing(socket);
+
 
 const socket = new WebSocket(
   `${protocol}://${window.location.host}/ws/kyt/${sessionId}/`

@@ -185,6 +185,7 @@
     </div>
 
 </div>
+<script src="{% static 'kytapp/js/ws_common.js' %}"></script>
 <script>
 console.log("🔰 Round4 WebSocket loaded");
 
@@ -192,6 +193,7 @@ console.log("🔰 Round4 WebSocket loaded");
 const sessionId = "{{ session.id }}";
 const protocol = location.protocol === "https:" ? "wss" : "ws";
 const socket = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
+startPing(socket);
 
 socket.onopen = ()=> console.log("🟢 Round4 WebSocket connected");
 socket.onclose = ()=> console.log("🔴 WS Closed");
