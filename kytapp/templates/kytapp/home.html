@@ -106,7 +106,7 @@ startPing(socket);
 
 socket.onopen = () => console.log("🟢 WebSocket(Home) connected");
 
-// 🔥 名前入力 → WebSocket送信
+// 名前入力 → WebSocket送信
 document.querySelectorAll("input[name$='-name']").forEach(input => {
     input.addEventListener("input", function() {
         const name = this.name;       // p-0-name
@@ -120,7 +120,7 @@ document.querySelectorAll("input[name$='-name']").forEach(input => {
     });
 });
 
-// 🔥 受信 → 他の端末にも反映
+//  受信 → 他の端末にも反映
 socket.onmessage = (event) => {
     const data = JSON.parse(event.data);
 

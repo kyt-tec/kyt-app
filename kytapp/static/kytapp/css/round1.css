@@ -1,12 +1,7 @@
 /* カード全体の横並び */
 
 
-.card-row {
-  display: flex;
-  gap: 16px;
-  margin: 15px 0 20px 0;
-  align-items: center;
-}
+
 
 /* 1枚のカードの外枠 */
 .card-block {
@@ -30,17 +25,7 @@
   transform: rotateY(180deg);
 }
 
-/* 表・裏 共通 */
-.card-front, .card-back {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
-  border-radius: 15px;
-  overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-}
+
 
 /* 表（画像側） */
 .card-front img {
@@ -50,19 +35,7 @@
 }
 
 /* 裏（説明側） */
-.card-back {
-  transform: rotateY(180deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px;
-  font-size: 14px;
-  text-align: center;
-  background-color: #fff9db;
-  border: 3px dashed #facc15;
-  color: #7c2d12;
-  font-weight: bold;
-}
+
 
 /* カード配布ボタン */
 .deal-button {
@@ -141,19 +114,8 @@ body {
   cursor: pointer;
 }
 
-.card-front, .card-back {
-  border-radius: 20px;
-  background: white;
-  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-}
 
-.card-back {
-  background: linear-gradient(135deg, #fff7ed, #ffedd5);
-  border: 3px dashed #fb923c;
-  color: #7c2d12;
-  font-size: 15px;
-  font-weight: bold;
-}
+
 
 .deal-button {
   background: linear-gradient(135deg, #fb923c, #fb7185);
@@ -181,7 +143,7 @@ body {
   margin: 0;
   min-height: 100vh;
   font-family: "Segoe UI", sans-serif;
-  background: #f6efe6;
+  background: #FFDEAD;
 }
 
 .app-layout {
@@ -205,7 +167,7 @@ body {
 }
 
 .panel-box {
-  background: #fffaf3;
+  background: #FFEBCD;
   border-radius: 20px;
   padding: 25px;
   box-shadow: 0 8px 25px rgba(0,0,0,0.12);
@@ -217,14 +179,8 @@ body {
   gap: 20px;
 }
 
-.slot-box{
-    width:180px;height:160px;
-    overflow:hidden;
-    border-radius:12px;
-    border:3px solid #ffb547;
-    margin:10px auto;
-    background:white;
-}
+
+
 
 .reel{
     transition:transform 0.07s linear;
@@ -269,11 +225,7 @@ body {
 
 .slot-title{font-weight:bold;margin-bottom:5px;}
 
-.slot-box{
-  width:170px;height:160px;margin:0 auto 8px auto;
-  border-radius:12px;border:3px solid #ffa93d;padding:4px;background:#fff;
-  overflow:hidden;
-}
+
 
 .slot-btn{
   padding:6px 16px;font-size:15px;border-radius:8px;border:none;
@@ -286,8 +238,8 @@ body {
   width:120px;
   height:140px;
   overflow:hidden;
-  border:3px solid #ffa93d;
-  border-radius:12px;
+  border:0px  #FFE4B5;
+  
   background:#fff;
   margin:auto;
 }
@@ -337,7 +289,7 @@ body {
     width:520px;
     height:160px;
     display:flex;
-    margin:auto;
+    
     overflow:hidden;
     justify-content:center;
 }
@@ -347,8 +299,9 @@ body {
     width:120px;
     height:160px;
     overflow:hidden;
-    margin:0 4px;
-    border-right:1px solid #ddd;
+    margin:3 3px;
+    border-right:5px solid #FFE4B5;
+    border-left:5px solid #FFE4B5;
 }
 
 .slot-box:last-child{
@@ -392,6 +345,7 @@ body {
   display:flex;
   flex-direction:column;
   align-items:center;
+  justify-content: center;
   margin-top:10px;
 }
 
@@ -406,12 +360,12 @@ body {
   box-shadow:0 5px 18px rgba(0,0,0,.15);
   margin-bottom:10px;
 }
-.slot-box.when  { order: 1; }
+.slot-box.when  { order: 3; }
 .slot-box.where { order: 2; }
-.slot-box.who   { order: 3; }
+.slot-box.who   { order: 1; }
 .slot-box.what  { order: 4; }
 
-.slot-box{ display:flex; gap:10px; }
+.slot-box{ display:flex; gap:0px; }
 
 .reel{
   display:flex;
@@ -438,9 +392,9 @@ body {
   margin:4px;border:none;cursor:pointer;
 }
 
-.slot-btn.when  { order: 1; }
+.slot-btn.when  { order: 3; }
 .slot-btn.where { order: 2; }
-.slot-btn.who   { order: 3; }
+.slot-btn.who   { order: 1; }
 .slot-btn.what  { order: 4; }
 
 .slot-btn:hover{ transform:scale(1.08);opacity:.9; }
@@ -545,8 +499,8 @@ body {
 
 .slot-results{
     display:flex;
-    gap:10px;
-    justify-content:center;
+    gap:3px;
+    justify-content:flex-start;
     margin-top:10px;
 }
 
@@ -561,9 +515,9 @@ body {
     font-size:15px;
 }
 
-.slot-results .when  { order: 1; }
+.slot-results .when  { order: 3; }
 .slot-results .where { order: 2; }
-.slot-results .who   { order: 3; }
+.slot-results .who   { order: 1; }
 .slot-results .what  { order: 4; }
 
 
@@ -597,8 +551,8 @@ body {
     width:120px;
     height:200px;          /* ←高さを伸ばしカード3枚が見える */
     overflow:hidden;
-    border-radius:14px;
-    background:white;
+    
+    background:#FFEFD5;
     position:relative;
 }
 
@@ -707,9 +661,7 @@ body {
   justify-content: center;
 }
 
-.slot-box.fixed-what .reel {
-  transform: none !important;   /* JSのtranslateYを完全無効化 */
-}
+
 
 .slot-box.fixed-what .slot-item {
   height: 140px;
@@ -826,4 +778,215 @@ h2 {
     width: 100%;
     margin-top: 10px;
     border-radius: 8px;
+}
+
+.reel.fixed {
+  height: auto;
+  transform: none !important;
+}
+
+.slot-btn.what.fixed {
+  background: #4CAF50;
+}
+.slot-btn.what.fixed:hover {
+  background: #45a049;
+}
+
+/* what固定カードも slot-item と同じ高さにする */
+.slot-box.fixed-what .card-block {
+  height: 140px;        /* ← slot-item と同じ */
+  width: 110px;         /* ← slot-img と同じ */
+  overflow: hidden;
+}
+
+.slot-box.fixed-what .card-front,
+.slot-box.fixed-what .card-back {
+  height: 140px;
+  width: 110px; 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.slot-box.fixed-what .card-front img,
+.slot-box.fixed-what .card-back img {
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  
+
+}
+
+.slot-machine {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 25;
+  margin: 0 auto;
+   
+}
+
+.slot-window {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.slot-box {
+  width: 120px;
+  text-align: center;
+}
+
+.slot-window {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+
+  background: #FFEFD5;
+  border-radius: 16px;
+  border: 4px solid #ffb5b5;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, .15);
+
+  margin-bottom: 10px;
+  margin-left: auto;
+  margin-right: auto;
+  /* margin: auto; ← 削除 */
+}
+
+.slot-machine {
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* ← 中央基準はここ */
+  justify-content: center;
+
+  width: fit-content;
+  padding: 25px;
+  margin: 0 auto;
+
+  text-align: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+.slot-box {
+  width: 120px;
+}
+
+.what-suffix {
+    display: inline-block; 
+    background: #fff8d1;
+    border: 2px solid #FF0000;
+    padding: 5px 10px;
+    border-radius: 10px;
+    font-weight: bold;
+    text-align: center;
+    font-size: 15px;
+   
+    
+    width: 17ch;
+    white-space: nowrap;
+}
+
+.res {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 3px;
+    min-height: 36px; 
+    flex-wrap: wrap;  /* ★高さを揃える */
+}
+
+.res b {
+    width: 16px;        /* 助詞の位置を固定 */
+    text-align: center;
+}
+.res-item {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    justify-content: center;
+}
+
+
+.res.who .res-item {
+    padding: 6px 8px;
+    min-width: 48px;
+    font-size: 17px;
+}
+
+.res.when .res-item {
+    padding: 6px 9px;
+    min-width: 48px;
+    font-size: 17px;
+}
+.res.where .res-item {
+    padding: 6px 9px;
+    min-width: 48px;
+    font-size: 17px;
+}
+.res.what .res-item {
+    padding: 6px 9px;
+    min-width: 48px;
+    font-size: 17px;
+}
+
+.reel.stopped .slot-default {
+  display: none;
+}
+
+.reel.stopped .slot-img-wrap img[data-real] {
+  display: block;
+}
+
+.participant-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0 20px;
+}
+
+.participant-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  background: #f3f4f6;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.participant-btn:hover {
+  background: #e5e7eb;
+}
+
+.res-row {
+  display: grid;
+  grid-template-columns:
+    auto auto   /* who + が */
+    auto auto   /* where + で */
+    1fr auto    /* when（伸びる） + に */
+    auto auto;  /* what + suffix */
+
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 0;
+}
+
+/* 各カード共通 */
+.res-item {
+  white-space: nowrap;
+}
+
+/* when だけは長くなってOK */
+.res-item.when {
+  white-space: normal;        /* 折り返しOK */
+  overflow-wrap: anywhere;
+}
+
+/* 助詞 */
+.res-post {
+  font-weight: bold;
+}
+
+/* suffix */
+.what-suffix-wrapper {
+  margin-left: 4px;
 }

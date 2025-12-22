@@ -3,6 +3,7 @@
 from django import forms
 from django.forms.models import ModelForm,inlineformset_factory
 from .models import KYTSession, RiskEvaluation, Countermeasure
+from .models import Participant
 
 # リスク評価用のフォーム
 class RiskEvaluationForm(forms.ModelForm):
@@ -46,6 +47,20 @@ class CountermeasureForm(forms.ModelForm):
 CountermeasureFormSet = inlineformset_factory(
     KYTSession, Countermeasure,
     form=CountermeasureForm,
-    extra=1,
+    extra=0,
     can_delete=True
 )
+
+class ParticipantForm(forms.ModelForm):
+    
+
+    class Meta:
+        model = Participant
+        fields = ['name','who','what', 'where', 'when', 'who','how', 'expected_injury']
+
+
+    @property
+    def what_card_text(self):
+        if self.instance and self.instance.what:
+            return self.instance.what.split("を")[0]
+        return ""

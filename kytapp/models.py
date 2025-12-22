@@ -1,6 +1,7 @@
 # kytapp/models.py
 from django.db import models
 import random
+from django.utils import timezone
 
 class KYTSession(models.Model):
     participant_count = models.IntegerField("参加者人数", default=1)
@@ -31,7 +32,11 @@ class KYTSession(models.Model):
     max_length=50,
     blank=True,
     null=True
-)
+    )
+
+    round3_initialized = models.BooleanField(default=False)
+
+    round3_end_time = models.DateTimeField(null=True, blank=True)
 
 
     
@@ -74,8 +79,8 @@ class Countermeasure(models.Model):
 
     who   = models.CharField("だれが", max_length=100, blank=True)
     where = models.CharField("どこで", max_length=100, blank=True)
-    what  = models.CharField("なにを", max_length=100, blank=True)
     when  = models.CharField("いつ", max_length=100, blank=True)
+    what  = models.CharField("なにを", max_length=100, blank=True)
     text = models.TextField("対策内容")
 
     is_best = models.BooleanField(default=False)

@@ -80,3 +80,67 @@
   background: #fb923c;
   color: white;
 }
+
+
+.round-timer {
+  position: fixed;
+  top: 10px;
+  margin: 15px auto;
+  width: fit-content;
+
+  padding: 10px 24px;
+  font-size: 22px;
+  font-weight: bold;
+  letter-spacing: 1px;
+
+  background: #fff7ed;
+  color: #7c2d12;
+
+  border: 2px solid #fdba74;
+  border-radius: 999px;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 50;
+}
+
+.round-timer.warning {
+  background: #fffbeb;
+  border-color: #facc15;
+  color: #92400e;
+}
+
+.round-timer.danger {
+  background: #fee2e2;
+  border-color: #ef4444;
+  color: #7f1d1d;
+  animation: pulse 1s infinite;
+}
+
+.round-timer.end {
+  background: #7f1d1d;
+  color: white;
+  border-color: #7f1d1d;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+.timer-message {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #7c2d12;
+  opacity: 0;
+  transform: translateY(-5px);
+  transition: all 0.4s ease;
+}
+
+.timer-message.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+
+

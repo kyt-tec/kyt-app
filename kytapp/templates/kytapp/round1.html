@@ -5,6 +5,7 @@
   <meta charset="UTF-8">
   <title>Round 1: カードをめくって状況を決めよう</title>
   <link rel="stylesheet" href="{% static 'kytapp/css/round1.css' %}">
+  <link rel="stylesheet" href="{% static 'kytapp/css/round1_flip.css' %}">
 </head>
 
 <body>
@@ -31,10 +32,43 @@
 
     <div class="step-bar">
       <span class="step current">Round 1</span>
-      <span class="step">Round 2</span>
-      <span class="step">Round 3</span>
-      <span class="step">Round 4</span>
+
+      <a href="{% url 'kytapp:round2' session.id %}" class="step">
+        Round 2
+      </a>
+
+      <a href="{% url 'kytapp:round3' session.id %}" class="step">
+        Round 3
+      </a>
+
+      <a href="{% url 'kytapp:round4' session.id %}" class="step">
+        Round 4
+      </a>
     </div>
+
+    <div class="participant-nav">
+      {% for p in participants %}
+        <button
+          type="button"
+          class="participant-btn"
+          onclick="scrollToParticipant({{ forloop.counter0 }})">
+          {{ p.name }}
+      {% endfor %}
+        </button>
+      </div>
+      <div class="help-button" onclick="openHelp()">
+        ？
+      </div>
+
+      <div id="helpPanel" class="help-panel">
+          <span class="close-btn" onclick="closeHelp()">×</span>
+
+          <h3>道具の使い方</h3>
+          <p>What カードの説明です</p>
+
+          <img src="{% static 'kytapp/images/what_task.png' %}" class="help-img">
+      </div>
+
 
     <h2>Round 1: それぞれのスロットを回し、危険の状況を想定しよう</h2>
 
@@ -45,21 +79,10 @@
         {% for form in formset %}
         {{ form.id }}
 
-        <div class="help-button" onclick="openHelp()">
-          ？
-        </div>
+        
 
-        <div id="helpPanel" class="help-panel">
-            <span class="close-btn" onclick="closeHelp()">×</span>
-
-            <h3>道具の使い方</h3>
-            <p>What カードの説明です</p>
-
-            <img src="{% static 'kytapp/images/what_task.png' %}" class="help-img">
-        </div>
-
-
-        <div class="participant-card">
+        
+        <div class="participant-card" id="participant-{{ forloop.counter0 }}">
           <h3>{{ forloop.counter }}人目（{{ form.name }}）</h3>
           <!-- ▼ レバーボタン -->
           <div class="slot-lever" onclick="pullLever({{forloop.counter0}},this)">            
@@ -85,36 +108,69 @@
 
             <div class="slot-window">
               <div class="slot-box who" data-i="{{forloop.counter0}}">
-                <div class="reel" id="reel-who-{{forloop.counter0}}">
-                  {% for c in card_images.who %}
-                  <div class="slot-item">
-                    <div class="slot-img-wrap">
-                      <img src="{% static 'kytapp/card_back.jpg' %}" 
-                        class="slot-img slot-default" 
-                        data-real="{% static 'kytapp/'|add:c.image %}">
-                    </div>  
-                    <p class="slot-label">{{ c.text }}</p>
+
+                {% if form.instance.who %}
+                  <div class="reel fixed" id="reel-who-{{ forloop.counter0 }}">
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        {% for c in card_images.who %}
+                          {% if c.text == form.instance.who %}
+                            <img src="{% static 'kytapp/'|add:c.image %}"
+                                class="slot-img slot-fixed">
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      <p class="slot-label">{{ form.instance.who }}</p>
+                    </div>
                   </div>
+                {% else %}
+                  <div class="reel" id="reel-who-{{forloop.counter0}}">
+                    {% for c in card_images.who %}
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        <img src="{% static 'kytapp/card_back.jpg' %}"
+                          class="slot-img slot-default"
+                          data-real="{% static 'kytapp/'|add:c.image %}">
+                      </div>  
+                      <p class="slot-label">{{ c.text }}</p>
+                    </div>
                   {% endfor %}
                 </div>
+                {% endif %}
               </div>
 
           <!-- === WHERE === -->
           
             
               <div class="slot-box where" data-i="{{forloop.counter0}}">
-                <div class="reel" id="reel-where-{{forloop.counter0}}">
-                  {% for c in card_images.where %}
-                  <div class="slot-item">
-                    <div class="slot-img-wrap">
-                      <img src="{% static 'kytapp/card_back.jpg' %}" 
-                        class="slot-img slot-default" 
-                        data-real="{% static 'kytapp/'|add:c.image %}">
+                {% if form.instance.where %}
+                  <div class="reel fixed" id="reel-where-{{ forloop.counter0 }}">
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        {% for c in card_images.where %}
+                          {% if c.text == form.instance.where %}
+                            <img src="{% static 'kytapp/'|add:c.image %}"
+                                class="slot-img slot-fixed">
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      <p class="slot-label">{{ form.instance.where }}</p>
                     </div>
-                    <p class="slot-label">{{ c.text }}</p>
                   </div>
-                  {% endfor %}
-                </div>
+                {% else %}
+                  <div class="reel" id="reel-where-{{forloop.counter0}}">
+                    {% for c in card_images.where %}
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        <img src="{% static 'kytapp/card_back.jpg' %}" 
+                          class="slot-img slot-default" 
+                          data-real="{% static 'kytapp/'|add:c.image %}">
+                      </div>
+                      <p class="slot-label">{{ c.text }}</p>
+                    </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
               </div>
           
 
@@ -122,54 +178,90 @@
           
             
               <div class="slot-box when" data-i="{{forloop.counter0}}">
-                <div class="reel" id="reel-when-{{forloop.counter0}}">
-                  {% for c in card_images.when %}
-                  <div class="slot-item">
-                    <div class="slot-img-wrap">
-                      <img src="{% static 'kytapp/card_back.jpg' %}" 
-                        class="slot-img slot-default" 
-                        data-real="{% static 'kytapp/'|add:c.image %}">
+
+                {% if form.instance.when %}
+                  <div class="reel fixed" id="reel-when-{{ forloop.counter0 }}">
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        {% for c in card_images.when %}
+                          {% if c.text == form.instance.when %}
+                            <img src="{% static 'kytapp/'|add:c.image %}"
+                                class="slot-img slot-fixed">
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                      <p class="slot-label">{{ form.instance.when }}</p>
                     </div>
-                    <p class="slot-label">{{ c.text }}</p>
                   </div>
-                  {% endfor %}
-                </div>
+                {% else %}
+                  <div class="reel" id="reel-when-{{forloop.counter0}}">
+                    {% for c in card_images.when %}
+                    <div class="slot-item">
+                      <div class="slot-img-wrap">
+                        <img src="{% static 'kytapp/card_back.jpg' %}" 
+                          class="slot-img slot-default" 
+                          data-real="{% static 'kytapp/'|add:c.image %}">
+                      </div>
+                      <p class="slot-label">{{ c.text }}</p>
+                    </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
               </div>
               
           
           <!-- === WHAT === -->
           
             
-              <div class="slot-box what {% if session.round1_mode == 'fixed_what' %}fixed-what{% endif %}" 
-                  data-i="{{forloop.counter0}}">
-                <div class="reel" id="reel-what-{{forloop.counter0}}">
+              <div class="slot-box what {% if session.round1_mode == 'fixed_what' %}fixed-what{% endif %}"
+                  data-i="{{ forloop.counter0 }}">
 
-                {% if session.round1_mode == 'fixed_what' %}
+
+                {% if session.round1_mode == 'fixed_what' %}  
                   {% with c=card_images.what.0 %}
-                  <div class="slot-item">
-                    <div class="slot-img-wrap">
-                      <img src="{% static 'kytapp/'|add:c.image %}"
-                          class="slot-img">
-                    </div>
-                    <p class="slot-label">{{ c.text }}</p>
-                  </div>
-                  {% endwith %}
-                {% else %}   
-                  {% for c in card_images.what %}
-                  <div class="slot-item">
-                    <div class="slot-img-wrap">
-                      <img src="{% static 'kytapp/card_back.jpg' %}" 
-                        class="slot-img slot-default" 
-                        data-real="{% static 'kytapp/'|add:c.image %}">
-                    </div>
-                    <p class="slot-label">{{ c.text }}</p>
-                  </div>
-                  {% endfor %}
-                {% endif %}             
-                </div>
-              </div>
-            </div> 
+                  <div class="card-row">
+                    <div class="card-block {% if form.instance.what %}flipped{% endif %}" id="what-card-{{ forloop.counter0 }}">
+                      <div class="card-inner">
 
+                        <!-- 表（裏向きのカード） -->
+                        <div class="card-front">
+                          <img src="{% static 'kytapp/card_back.jpg' %}">
+                        </div>
+
+                        <!-- 裏（whatカード） -->
+                        <div class="card-back">
+                          <img src="{% static 'kytapp/'|add:c.image %}">
+                        
+                        </div>
+
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {% endwith %}
+
+                {% else %}
+    
+                  <div class="reel {% if form.instance.what %}stopped{% endif %}"
+                      id="reel-what-{{ forloop.counter0 }}">
+                    {% for c in card_images.what %}
+                      <div class="slot-item">
+                        <div class="slot-img-wrap">
+                          <img src="{% static 'kytapp/card_back.jpg' %}"
+                              class="slot-img slot-default"
+                              data-real="{% static 'kytapp/'|add:c.image %}">
+                        </div>
+                        <p class="slot-label">{{ c.text }}</p>
+                      </div>
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+              </div>
+
+
+            </div> 
+        
             
 
             <div style="display:flex;gap:10px;">
@@ -179,18 +271,61 @@
               <input type="hidden" name="form-{{forloop.counter0}}-where" id="where-hidden-{{forloop.counter0}}">
               <button type="button" class="slot-btn when" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','when')">When:STOP</button>
               <input type="hidden" name="form-{{forloop.counter0}}-when" id="when-hidden-{{forloop.counter0}}">
-              {% if session.round1_mode != 'fixed_what' %}
+              {% if session.round1_mode == 'fixed_what' %}
+              <button type="button" class="slot-btn what fixed" data-i="{{forloop.counter0}}" onclick="flipWhat({{forloop.counter0}})">What:めくる</button>
+              {% else %}
               <button type="button" class="slot-btn what" data-i="{{forloop.counter0}}" onclick="stopSlot('{{forloop.counter0}}','what')">What:STOP</button>
               {% endif %}
-              <input type="hidden" name="form-{{forloop.counter0}}-what" id="what-hidden-{{forloop.counter0}}">
+              <input type="hidden" name="form-{{forloop.counter0}}-what" id="what-hidden-{{forloop.counter0}}" value="{{ form.instance.what|default_if_none:'' }}">
             </div>
 
-            <div class="slot-results" id="results-{{forloop.counter0}}">
-              <p class="res who"><b>で</b> <span class="res-item" id="res-who-{{forloop.counter0}}"></span></p>
-              <p class="res where"><b>に</b> <span class="res-item" id="res-where-{{forloop.counter0}}"></span></p>
-              <p class="res when"><b></b> <span class="res-item" id="res-when-{{forloop.counter0}}"></span></p>
-              <p class="res what"><b>が</b> <span class="res-item" id="res-what-{{forloop.counter0}}"></span><b>を</b></p>
+            <div class="slot-results" id="results-{{ forloop.counter0 }}">
+              <p class="res who">
+              
+                <span class="res-item" id="res-who-{{ forloop.counter0 }}">
+                  {{ form.instance.who|default_if_none:"" }}
+                </span>
+              </p>
+
+              <p class="res where">
+                
+                <span class="res-item" id="res-where-{{ forloop.counter0 }}">
+                  {{ form.instance.where|default_if_none:"" }}
+                </span>
+              </p>
+
+              <p class="res when">
+                
+                <span class="res-item" id="res-when-{{ forloop.counter0 }}">
+                  {{ form.instance.when|default_if_none:"" }}
+                </span>
+              </p>
+
+              <p class="res what">                
+                <span class="res-item" id="res-what-{{ forloop.counter0 }}">                  
+                  {% if show_suffix %}
+                    {{ form.what_card_text|default_if_none:"" }}
+                  {% else %}
+                    {{ form.instance.what|default_if_none:"" }}
+                  {% endif %}            
+                </span>
+                {% if show_suffix %}
+                  <input
+                    type="text"
+                    class="what-suffix"
+                    data-index="{{ forloop.counter0 }}"
+                    placeholder="例：を使っている時に"
+                  >
+
+                  <input
+                    type="hidden"
+                    name="what_suffix_{{ forloop.counter0 }}"
+                    id="what-suffix-hidden-{{ forloop.counter0 }}"
+                  >
+                {% endif %}
+              </p>
             </div>
+
 
 
           </div>
@@ -215,8 +350,13 @@
   </div>
 </div>
 
-<!-- ▼ JavaScript -->
+
+<script src="{% static 'kytapp/js/ws_common.js' %}"></script>
+
+
 <script>
+
+
 console.log("NEW pullLever loaded")
 const participantNames = [
     {% for p in participants %}
@@ -226,6 +366,7 @@ const participantNames = [
 const sessionId = "{{ session.id }}";
 const protocol  = location.protocol === "https:" ? "wss" : "ws";
 const socket    = new WebSocket(`${protocol}://${location.host}/ws/kyt/${sessionId}/`);
+startPing(socket);
 
 socket.onopen = ()=>console.log("🟢 WebSocket connected");
 
@@ -236,23 +377,87 @@ const CARD_H   = 140;
 const WINDOW_H = 160;
 const BASE_OFFSET = (WINDOW_H - CARD_H) / 2 - 100;
 
-document.addEventListener("DOMContentLoaded",()=>{
-  const count = {{ session.participant_count }};
-  const cats  = 
-    ("{{ session.round1_mode }}" === "fixed_what")
-      ?["who","where","when"]
-      : ["who","where","when","what"];
-  for(let i=0;i<count;i++){
-    cats.forEach(cat=>{
-      const reel = document.getElementById(`reel-${cat}-${i}`);
-      if(reel) reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+
+
+
+function scrollToParticipant(index) {
+  const target = document.getElementById(`participant-${index}`);
+  if (target) {
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
     });
   }
+}
+
+
+
+function initReels() {
+  const count = {{ session.participant_count }};
+  const cats =
+    ("{{ session.round1_mode }}" === "fixed_what")
+      ? ["who","where","when"]
+      : ["who","where","when","what"];
+
+  for (let i = 0; i < count; i++) {
+    cats.forEach(cat => {
+      const reel = document.getElementById(`reel-${cat}-${i}`);
+      if (!reel) return;
+
+      if (!reel.classList.contains("stopped")) {
+        reel.style.setProperty("--base-offset", `${BASE_OFFSET}px`);
+      }
+    });
+  }
+}
+
+
+
+
+function disableEnter() {
+  document.querySelectorAll(".what-suffix").forEach(input => {
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  });
+}
+
+function restoreFixedWhat() {
+  if ("{{ session.round1_mode }}" !== "fixed_what") return;
+
+  document.querySelectorAll("[id^='what-hidden-']").forEach(hidden => {
+    if (!hidden.value) return;
+
+    const i = hidden.id.replace("what-hidden-", "");
+    const card = document.getElementById(`what-card-${i}`);
+    if (card) card.classList.add("flipped");
+  });
+}
+
+document.querySelectorAll("input.what-suffix").forEach(input => {
+  input.addEventListener("input", function () {
+    const index = this.dataset.index;
+    if (index === undefined) return;
+
+    const hidden = document.getElementById(`what-suffix-hidden-${index}`);
+    if (hidden) {
+      hidden.value = this.value;
+    }
+    socket.send(JSON.stringify({
+      type: "what_suffix",
+      index: Number(index),
+      value: this.value,
+      senderId: clientId
+    }));
+  });
 });
 
-/* ===========================
+/*
    WebSocket 受信
-=========================== */
+ */
 socket.onmessage = function(e){
   const msg = JSON.parse(e.data);
 
@@ -264,7 +469,7 @@ socket.onmessage = function(e){
   }
 
   if (msg.type === "slot_stop"){
-    // ★ 半角カンマ , に注意
+    
     doStop(msg.index, msg.category, msg.resultText);
   }
 
@@ -283,12 +488,156 @@ socket.onmessage = function(e){
     }
   }
 
+  if (msg.type === "what_suffix") {
+    const input = document.querySelector(
+      `input.what-suffix[data-index="${msg.index}"]`
+    );
+
+    if (input && document.activeElement !== input) {
+      input.value = msg.value;
+    }
+
+    const hidden = document.getElementById(
+      `what-suffix-hidden-${msg.index}`
+    );
+    if (hidden) {
+      hidden.value = msg.value;
+    }
+  }
+
+
+  if (msg.type === "card_flip") {
+    applyFlip(msg.index);
+  }
 
 };
 
-/* ===========================
+function flipWhat(i) {
+
+  
+
+  console.log("flipWhat called", i);
+  const card = document.getElementById(`what-card-${i}`);
+  if (!card) return;
+
+  // 裏返す
+  card.classList.add("flipped");
+
+
+  // 値を hidden に入れる
+  const text = "{{ card_images.what.0.text }}";
+  const hidden = document.getElementById(`what-hidden-${i}`);
+  if (hidden) hidden.value = text;
+
+  const resSpan = document.getElementById(`res-what-${i}`);
+  if (resSpan) resSpan.textContent = text;
+
+  const slotBox = card.closest(".slot-box");
+  if (slotBox) {
+    slotBox.classList.remove("stop-glow"); // 再実行対策
+    void slotBox.offsetWidth;              // reflow（重要）
+    slotBox.classList.add("stop-glow");
+  }
+
+  applyFlip(i);
+  
+
+  // WebSocket同期
+  socket.send(JSON.stringify({
+    type: "card_flip",
+    index: Number(i),
+    category: "what",
+    resultText: text,
+    senderId: clientId
+  }));
+}
+
+function applyFlip(i) {
+  const card = document.getElementById(`what-card-${i}`);
+
+  if (card) {
+    card.classList.add("flipped");
+  }
+
+  // 非 fixed_what 用（slot）
+  const reel = document.getElementById(`reel-what-${i}`);
+  if (reel && !reel.classList.contains("stopped")) {
+    doStop(i, "what", "{{ card_images.what.0.text }}");
+  }
+
+  const text = "{{ card_images.what.0.text }}";
+  document.getElementById(`what-hidden-${i}`).value = text;
+  document.getElementById(`res-what-${i}`).textContent = text;
+  
+}
+
+
+function restoreWhat() {
+  document.querySelectorAll("[id^='what-hidden-']").forEach(hidden => {
+    const i = hidden.id.replace("what-hidden-", "");
+    const value = hidden.value;
+    if (!value) return;
+
+    const cardText = value.split("を")[0];
+    const reel = document.getElementById(`reel-what-${i}`);
+    if (!reel) return;
+
+    while (
+      reel.children[1]?.querySelector(".slot-label")?.textContent !== cardText
+    ) {
+      reel.appendChild(reel.children[0]);
+    }
+
+    reel.classList.add("stopped");
+    reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+
+    reel.querySelectorAll(".slot-item").forEach(item => {
+      const label = item.querySelector(".slot-label")?.textContent;
+      const img = item.querySelector(".slot-img");
+      if (!img) return;
+
+      if (label === cardText) {
+        img.src = img.dataset.real;
+        img.style.visibility = "visible";
+      } else {
+        img.style.visibility = "hidden"; // ← display:none ❌
+      }
+    });
+
+  });
+}
+
+document.addEventListener("DOMContentLoaded",()=>{
+  initReels();      // 初期位置
+  restoreWhat();    // 戻り復元
+  restoreFixedWhat(); // fixed_what 用（必要なら）
+  disableEnter();   // Enter防止
+
+});
+
+function updateWhatResult(index) {
+  const base = document.getElementById(`res-what-${index}`)?.textContent || "";
+  const suffix = document.querySelector(
+    `input.what-suffix[data-index="${index}"]`
+  )?.value || "";
+
+  const display = document.getElementById(`res-what-${index}`);
+  if (display) {
+    display.textContent = base + suffix;
+  }
+
+  const hidden = document.getElementById(`what-hidden-${index}`);
+  if (hidden) {
+    hidden.value = base + suffix;
+  }
+}
+
+
+
+
+/* 
    レバー START
-=========================== */
+= */
 window.pullLever = function(i,lever){
   console.log("pullLever called", i, lever);
 
@@ -296,8 +645,8 @@ window.pullLever = function(i,lever){
 
     const text = "{{ card_images.what.0.text }}";
 
-    const res = document.getElementById(`res-what-${i}`);
-    if (res) res.textContent = text;
+    //const res = document.getElementById(`res-what-${i}`);
+    //if (res) res.textContent = text;
 
     const hidden = document.getElementById(`what-hidden-${i}`);
     if (hidden) hidden.value = text;
@@ -320,10 +669,10 @@ window.pullLever = function(i,lever){
   setTimeout(()=>{
     lever.classList.remove("active");
 
-    // ★ 操作中の参加者名
+    // 操作中の参加者名
     const operatorName = participantNames[i];
 
-    // ★ 操作中の名前を送信
+    //  操作中の名前を送信
     socket.send(JSON.stringify({
       type: "operator",
       index: i,
@@ -334,7 +683,7 @@ window.pullLever = function(i,lever){
     // 自分は即回す
     runSlots(i);
 
-    // 他端末へ通知（slot_startは index だけでOK）
+    // 他端末へ通知（slot_startは index ）
     socket.send(JSON.stringify({
       type: "slot_start",
       index: i,
@@ -358,6 +707,10 @@ function showOperator(index, name){
 
 
 function runSlots(i){
+  const reel = document.getElementById(`reel-what-${i}`);
+  if (reel && reel.classList.contains("stopped")) {
+    return;
+  }
   const cats = 
     ("{{ session.round1_mode }}" === "fixed_what")
       ?["who","where","when"]
@@ -390,9 +743,11 @@ function runSlots(i){
 }
 
 function startSlot(i,cat){
+
+  
   
   if (cat === "what" && "{{ session.round1_mode }}" === "fixed_what") {
-    return; // ★絶対に触らない
+    return; 
   }
 
 
@@ -417,16 +772,16 @@ function startSlot(i,cat){
   },80);
 }
 
-/* ===========================
+/* 
    STOP（押した人が結果を決めて送る）
-=========================== */
+ */
 window.stopSlot = function(i,cat){
 
   if (cat === "what" && "{{ session.round1_mode }}" === "fixed_what") {
     const text = "{{ card_images.what.0.text }}";
 
-    const res = document.getElementById(`res-what-${i}`);
-    if (res) res.innerText = text;
+    //const res = document.getElementById(`res-what-${i}`);
+    //if (res) res.innerText = text;
 
     const hidden = document.getElementById(`what-hidden-${i}`);
     if (hidden) hidden.value = text;
@@ -444,7 +799,7 @@ window.stopSlot = function(i,cat){
   const reel = document.getElementById(`reel-${cat}-${i}`);
   if(!reel) return;
 
-  // ★今見えてる“中央”を採用（あなたの仕様が children[1] 中央ならここ）
+  // 今見えてる“中央”を採用
   const centerItem = reel.children[1];
   const resultText = centerItem?.querySelector(".slot-label")?.innerText || "";
 
@@ -468,9 +823,9 @@ window.stopSlot = function(i,cat){
   }
 };
 
-/* ===========================
+/*
    実際の停止処理（全端末共通）
-=========================== */
+ */
 async function doStop(i,cat,resultText){
   const key  = `${i}-${cat}`;
   const reel = document.getElementById(`reel-${cat}-${i}`);
@@ -483,7 +838,7 @@ async function doStop(i,cat,resultText){
     delete spin[key];
   }
 
-  // 減速っぽい演出（軽く）
+  // 減速っぽい演出
   let delay = 90;
   for(let t=0; t<6; t++){
     reel.style.transform = `translateY(${BASE_OFFSET - CARD_H}px)`;
@@ -493,7 +848,7 @@ async function doStop(i,cat,resultText){
     delay += 40;
   }
 
-  // ★結果を合わせる（全端末で一致させる本体）
+  // 結果を合わせる（全端末で一致させる本体）
   // reel.children[1] のテキストが resultText になるまで回す
   for(let guard=0; guard<reel.children.length+2; guard++){
     const now = reel.children[1]?.querySelector(".slot-label")?.innerText || "";
@@ -501,7 +856,7 @@ async function doStop(i,cat,resultText){
     reel.appendChild(reel.children[0]);
   }
 
-  reel.style.transform = `translateY(${BASE_OFFSET}px)`;
+ 
 
   // エフェクト
   reel.classList.remove("spin-blur");
@@ -529,19 +884,24 @@ document.querySelectorAll("textarea").forEach(textarea => {
     const name = this.name;  // form-0-how
     if(!name) return;
 
-    const parts = name.split("-");
-    const index = parts[1];
-    const field = parts[2];
+    const m = name.match(/^form-(\d+)-(.+)$/);
+    if (!m) return;
+
+    const index = Number(m[1]);
+    const field = m[2];
 
     socket.send(JSON.stringify({
       type: "typing",
-      index: index,
-      field: field,
+      index,
+      field,
       value: this.value,
       senderId: clientId
     }));
   });
 });
+
+
+
 
 function openHelp() {
     document.getElementById("helpPanel").classList.add("open");
@@ -549,6 +909,9 @@ function openHelp() {
 function closeHelp() {
     document.getElementById("helpPanel").classList.remove("open");
 }
+
+
+
 
 
 </script>

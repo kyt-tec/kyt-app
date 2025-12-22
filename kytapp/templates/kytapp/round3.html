@@ -99,10 +99,25 @@
 </head>
 <body>
 <div class="step-bar">
-  <span class="step">Round 1</span>
-  <span class="step ">Round 2</span>
-  <span class="step current">Round 3</span>
-  <span class="step">Round 4</span>
+  <a href="{% url 'kytapp:round1' session.id %}{% if current_round != 1 %}?from_later=1{% endif %}"
+     class="step {% if current_round == 1 %}current{% endif %}">
+    Round 1
+  </a>
+
+  <a href="{% url 'kytapp:round2' session.id %}"
+     class="step {% if current_round == 2 %}current{% endif %}">
+    Round 2
+  </a>
+
+  <a href="{% url 'kytapp:round3' session.id %}"
+     class="step {% if current_round == 3 %}current{% endif %}">
+    Round 3
+  </a>
+
+  <a href="{% url 'kytapp:round4' session.id %}"
+     class="step {% if current_round == 4 %}current{% endif %}">
+    Round 4
+  </a>
 </div>
 
 <h2>Round 3：対策を考えよう！</h2>
@@ -111,12 +126,16 @@
   肯定的な文章を作ろう！（書記のみが記入）
   {% endblock %}
 </div>
+<div id="timer" class="round-timer"></div>
+<div id="timer-message" class="timer-message"></div>
 
 <div class="container">
 
     <!-- 左側：対策入力 -->
     <div class="left">
+        
         <form method="post" id="countermeasures-form">
+            
             {% csrf_token %}
             {{ formset.management_form }}
 
@@ -124,14 +143,15 @@
                 {% for form in formset %}
                 
                 <div class="form-row">
+                    {{ form.id }}
 
 
                     <!-- 4W（上） -->
                     <div class="fourw-box">
                         <label>だれが：</label>{{ form.who }}
                         <label>どこで：</label>{{form.where }}
-                        <label>何を：</label>{{ form.what }}
                         <label>いつ：</label>{{ form.when }}
+                        <label>何を：</label>{{ form.what }}
                     </div>
 
                     <!-- 対策テキスト -->
@@ -143,7 +163,8 @@
                     <div class="best-box">
                         <input type="radio"
                             name="best_countermeasure"
-                            value="{{ forloop.counter0 }}"
+                            value="{{ form.instance.pk }}"
+                            {% if form.instance.is_best %}checked{% endif %}
                             class="best-radio">
                         いちばん良い対策
                     </div>
@@ -152,36 +173,36 @@
                 {% endfor %}
             </div>
 
-            <div id="empty-form" style="display:none;">
-                <div class="form-row">
-
-                    <div class="fourw-box">
-                        <label>だれが：</label>{{ formset.empty_form.who }}
-                        <label>どこで：</label>{{ formset.empty_form.where }}
-                        <label>何を：</label>{{ formset.empty_form.what }}
-                        <label>いつ：</label>{{ formset.empty_form.when }}
-                    </div>
-
-                    <div class="text-box">
-                        {{ formset.empty_form.text }}
-                    </div>
-
-                    <div class="best-box">
-                        <input type="radio"
-                            name="best_countermeasure"
-                            value="__prefix__"
-                            class="best-radio">
-                        いちばん良い対策
-                    </div>
-
-                </div>
-            </div>
-
             <button type="button" id="add-form">＋ 対策を追加</button><br>
             <button type="submit" name="action" value="next" class="next-btn">
                 次へ（Round4）
             </button>
         </form>
+
+        <div id="empty-form" style="display:none;">
+            <div class="form-row">
+
+                <div class="fourw-box">
+                    <label>だれが：</label>{{ formset.empty_form.who }}
+                    <label>どこで：</label>{{ formset.empty_form.where }}
+                    <label>いつ：</label>{{ formset.empty_form.when }}
+                    <label>何を：</label>{{ formset.empty_form.what }}
+                </div>
+
+                <div class="text-box">
+                    {{ formset.empty_form.text }}
+                </div>
+
+                <div class="best-box">
+                    <input type="radio"
+                        name="best_countermeasure"
+                        value="countermeasures-__prefix__"
+                        class="best-radio">
+                        いちばん良い対策
+                </div>
+
+            </div>
+        </div>
     </div>
 
     <!-- 右側：最も危険だった状況 -->
@@ -211,7 +232,37 @@
 <script src="{% static 'kytapp/js/ws_common.js' %}"></script>
 <!-- 追加ボタンのJS -->
 <script>
+const endTime = new Date("{{ round3_end_time|date:'c' }}");
+function updateTimer() {
+  const timerEl = document.getElementById("timer");
+  const msgEl = document.getElementById("timer-message");
+  const now = new Date();
+  const diff = endTime - now;
 
+  if (diff <= 0) {
+    timerEl.textContent = "⏰ 時間終了！";
+    timerEl.className = "round-timer end";
+
+    msgEl.textContent = "意見をまとめてラウンド4へ進もう！";
+    msgEl.classList.add("show");
+
+    return;
+  }
+
+  const min = Math.floor(diff / 60000);
+  const sec = Math.floor((diff % 60000) / 1000);
+  timerEl.textContent =
+    `⏳ ラウンド3残り ${min}:${sec.toString().padStart(2,'0')}`;
+
+  timerEl.className = "round-timer";
+  msgEl.textContent = ""; 
+  msgEl.classList.remove("show");
+  if (min < 2) timerEl.classList.add("danger");
+  else if (min < 5) timerEl.classList.add("warning");
+}
+
+setInterval(updateTimer, 1000);
+updateTimer();
 
 console.log("Round3 WebSocket loaded");
 
@@ -225,32 +276,45 @@ startPing(socket);
 socket.onopen = ()=> console.log("🟢 Round3 WebSocket connected");
 socket.onclose= ()=> console.log("🔴 WebSocket disconnected");
 
-// =======================
-// 🔽 1. 行追加処理（全共通）
-// =======================
+// 
+//  1. 行追加処理（全共通）
+//
 function addNewRow(){
     const container = document.getElementById("form-container");
     const total = document.getElementById("id_countermeasures-TOTAL_FORMS");
     const newIndex = Number(total.value);
 
-    
-
+    // 新しい行を追加
     let html = document.getElementById("empty-form").innerHTML;
-    html = html.replace(/__prefix__/g,newIndex);
-
-    
-
+    html = html.replace(/__prefix__/g, newIndex);
     container.insertAdjacentHTML("beforeend", html);
-    total.value = Number(newIndex)+1;
+
+    // 👇 直前の行から 4W をコピー
+    if (newIndex > 0) {
+        const prevIndex = newIndex - 1;
+        ["who", "where",  "when", "what"].forEach(field => {
+            const prev = document.querySelector(
+                `[name="countermeasures-${prevIndex}-${field}"]`
+            );
+            const current = document.querySelector(
+                `[name="countermeasures-${newIndex}-${field}"]`
+            );
+            if (prev && current) {
+                current.value = prev.value;
+            }
+        });
+    }
+
+    total.value = newIndex + 1;
 }
 
-// =======================
+
+// 
 // 🔽 2. 追加ボタン → WSで通知
-// =======================
+//
 document.getElementById("add-form").onclick = () => {
     console.log("➕ 自分の画面に行追加");
-    addNewRow();   // ← ★これが無かった
-
+    addNewRow();   
     console.log("📨 add_row 送信");
     socket.send(JSON.stringify({ 
         type: "add_row", 
@@ -258,9 +322,38 @@ document.getElementById("add-form").onclick = () => {
     }));
 };
 
-// =======================
-// 🔽 3. 入力同期（textarea）
-// =======================
+document.getElementById("countermeasures-form")
+  .addEventListener("submit", (e) => {
+
+    // ★ どのボタンで submit されたか
+    const submitter = e.submitter;
+
+    // 「次へ」のときは何もしない
+    if (submitter && submitter.value === "next") {
+      return;
+    }
+
+    // それ以外（追加・削除など）のときだけ __prefix__ を無効化
+    document
+      .querySelectorAll('[name^="countermeasures-__prefix__"]')
+      .forEach(el => el.disabled = true);
+});
+
+
+let isInitialLoad = true;
+
+// ページロード後すぐ false に
+window.addEventListener("load", () => {
+    setTimeout(() => {
+        isInitialLoad = false;
+    }, 300);
+});
+
+
+
+// 
+// 3. 入力同期（textarea）
+//
 document.addEventListener("input",e=>{
     if(
         e.target.matches("textarea")||
@@ -278,30 +371,35 @@ document.addEventListener("input",e=>{
     }
 });
 
-// =======================
-// 🔽 4. ラジオ同期
-// =======================
-document.addEventListener("click",e=>{
-    if(e.target.matches(".best-radio")){
-        socket.send(JSON.stringify({
-            type:"cm_best",
-            value:e.target.value
-        }));
-    }
+// 
+//  4. ラジオ同期
+// 
+document.addEventListener("click", e => {
+  if (!e.target.matches(".best-radio")) return;
+
+  socket.send(JSON.stringify({
+    type: "cm_best",
+    value: e.target.value,
+    senderId: clientId
+  }));
 });
 
-// =======================
-// 🔽 5. 受信処理
-// =======================
+
+
+// 
+//  5. 受信処理
+//
 socket.onmessage = e=>{
     const data = JSON.parse(e.data);
 
     if (data.senderId === clientId) return;
 
-    if(data.type==="add_row"){
-        console.log("📥 行追加適用");
-        addNewRow();
-    }
+    //if(data.type==="add_row"){
+        //console.log("📥 行追加適用");
+        //if (data.senderId !== clientId) return;
+        //if (isInitialLoad) return;
+        //addNewRow();
+    //}
 
     if(data.type==="cm_best"){
         const r=document.querySelector(`input.best-radio[value="${data.value}"]`);
@@ -310,12 +408,9 @@ socket.onmessage = e=>{
 
     if (data.type === "cm_input") {
         const name = `countermeasures-${data.index}-${data.field}`;
-        let target = document.querySelector(`[name="${name}"]`)
+        const target = document.querySelector(`[name="${name}"]`)
 
-        while (!target) {
-            addNewRow();
-            target = document.querySelector(`[name="${name}"]`);
-        }
+        if (!target) return;
 
         if (target && target !== document.activeElement) {
             target.value = data.value;

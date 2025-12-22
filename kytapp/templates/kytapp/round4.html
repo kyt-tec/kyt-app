@@ -115,10 +115,25 @@
 <body>
 
 <div class="step-bar">
-    <span class="step">Round 1</span>
-    <span class="step">Round 2</span>
-    <span class="step">Round 3</span>
-    <span class="step current">Round 4</span>
+    <a href="{% url 'kytapp:round1' session.id %}{% if current_round != 1 %}?from_later=1{% endif %}"
+     class="step {% if current_round == 1 %}current{% endif %}">
+        Round 1
+    </a>
+
+    <a href="{% url 'kytapp:round2' session.id %}"
+     class="step {% if current_round == 2 %}current{% endif %}">
+        Round 2
+    </a>
+
+    <a href="{% url 'kytapp:round3' session.id %}"
+     class="step {% if current_round == 3 %}current{% endif %}">
+        Round 3
+    </a>
+
+    <a href="{% url 'kytapp:round4' session.id %}"
+     class="step {% if current_round == 4 %}current{% endif %}">
+        Round 4
+    </a>
 </div>
 
 <h2>Round 4：最終安全目標を決めよう 🚩</h2>
@@ -208,10 +223,10 @@ function safeSend(data){
     }
 }
 
-/* ------------------------
-    ▼ テキスト同期送信
+/* 
+    テキスト同期送信
    form内の input/textarea を対象
-------------------------*/
+*/
 document.querySelectorAll("textarea,input[type='text']").forEach(el=>{
     el.addEventListener("input", function(){
         safeSend({
@@ -222,9 +237,9 @@ document.querySelectorAll("textarea,input[type='text']").forEach(el=>{
     });
 });
 
-/* ------------------------
+/* 
     ▼ 受信 → 内容反映
-------------------------*/
+*/
 socket.onmessage = e=>{
     const d = JSON.parse(e.data);
 

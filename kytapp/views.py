@@ -13,6 +13,11 @@ from django.http import HttpResponse
 from django.forms.models import inlineformset_factory
 from .forms import RiskEvaluationForm
 from kytapp.models import Participant
+from .forms import ParticipantForm
+from .forms import CountermeasureForm, CountermeasureFormSet
+from django.utils import timezone
+from datetime import timedelta
+
 
 
 
@@ -156,14 +161,26 @@ class Round1View(View):
     def get(self, request, pk):
         session = get_object_or_404(KYTSession, pk=pk)
 
+        from_later = request.GET.get("from_later") == "1"
+        show_suffix = not from_later
+
+        participants = session.participants.all()
+        decided_whats = []
+        for p in participants:
+            if p.what:
+                decided_whats.append(True)
+            else:
+                decided_whats.append(False)
+
         
         ParticipantFormSet = modelformset_factory(
             Participant,
-            fields=['name','who', 'where', 'when', 'what', 'how', 'expected_injury'],
+            form=ParticipantForm,
             extra=0,
             can_delete=False
         )
         formset = ParticipantFormSet(queryset=session.participants.all(),prefix='form')
+
 
         return render(request, self.template_name, {
             'formset': formset,
@@ -171,29 +188,46 @@ class Round1View(View):
             'card_images': self.get_card_images(session),
             'participants': session.participants.all(),
             'card_categories': ['who','where','when','what'],
+            'current_round': 1,
+            'show_suffix': show_suffix,
+            'decided_whats': decided_whats,
         })
 
     def post(self, request, pk):
         session = get_object_or_404(KYTSession, pk=pk)
         ParticipantFormSet = modelformset_factory(
             Participant,
-            fields=['name','who', 'where', 'when', 'what', 'how', 'expected_injury'],
+            form=ParticipantForm, 
             extra=0,
             can_delete=False
         )
         formset = ParticipantFormSet(request.POST, queryset=session.participants.all(),prefix='form')
 
-        if formset.is_valid():
-            formset.save()
-            return redirect('kytapp:round2', pk=session.pk)
-
-        return render(request, self.template_name, {
+        if not formset.is_valid():
+            return render(request, self.template_name, {
             'formset': formset,
             'session': session,
             'card_images': self.get_card_images(session),
             'participants': session.participants.all(),
-            'card_categories': ['who', 'where', 'when', 'what']
+            'card_categories': ['who', 'where', 'when', 'what'],
+            'current_round': 1,
         })
+
+        participants = formset.save(commit=False)
+
+        for i, (form, participant) in enumerate(zip(formset.forms, participants)):
+            base_what = form.cleaned_data.get("what") or ""
+
+            suffix = request.POST.get(f"what_suffix_{i}", "") or ""
+
+
+            participant.what = f"{base_what}{suffix}"
+            participant.save()
+            
+        return redirect('kytapp:round2', pk=session.pk)
+        
+        
+        
 
     def get_card_images(self, session):
         # what の候補をまず定義
@@ -219,23 +253,23 @@ class Round1View(View):
         # 最後にまとめて return
         return {
             'who': [
-                {'image': 'who/who(わたし).jpg', 'text': 'わたし'},
-                {'image': 'who/who(近くの人).jpg', 'text': '近くの人'},
-                {'image': 'who/who(先生).jpg', 'text': '先生'},
-                {'image': 'who/who(友達).jpg', 'text': '友達'},
+                {'image': 'who/who(わたし).jpg', 'text': 'わたしが'},
+                {'image': 'who/who(近くの人).jpg', 'text': '近くの人が'},
+                {'image': 'who/who(先生).jpg', 'text': '先生が'},
+                {'image': 'who/who(友達).jpg', 'text': '友達が'},
             ],
             'where': [
-                {'image': 'where/where(机).jpg', 'text': '机'},
-                {'image': 'where/where(作業台).jpg', 'text': '作業台'},
-                {'image': 'where/where(床).jpg', 'text': '床'},
-                {'image': 'where/where(通り道).jpg', 'text': '通り道'},
+                {'image': 'where/where(机).jpg', 'text': '机で'},
+                {'image': 'where/where(作業台).jpg', 'text': '作業台で'},
+                {'image': 'where/where(床).jpg', 'text': '床で'},
+                {'image': 'where/where(通り道).jpg', 'text': '通り道で'},
             ],
             'when': [
-                {'image': 'when/when(休み時間).jpg', 'text': '休み時間'},
-                {'image': 'when/when(作業中).jpg', 'text': '作業中'},
-                {'image': 'when/when(準備中).jpg', 'text': '準備中'},
-                {'image': 'when/when(片付け中).jpg', 'text': '片付け中'},
-                {'image': 'when/when(話を聞いている時).jpg', 'text': '話を聞いている時'},
+                {'image': 'when/when(休み時間).jpg', 'text': '休み時間に'},
+                {'image': 'when/when(作業中).jpg', 'text': '作業中に'},
+                {'image': 'when/when(準備中).jpg', 'text': '準備中に'},
+                {'image': 'when/when(片付け中).jpg', 'text': '片付け中に'},
+                
             ],
             'what': what_cards,
         }
@@ -259,6 +293,9 @@ class Round2View(View):
         session = get_object_or_404(KYTSession, pk=pk)
         participants = list(session.participants.all())
 
+        
+
+
         # 初回のみ RiskEvaluation を作成
         if session.evaluations.count() == 0:
             for p in participants:
@@ -281,6 +318,7 @@ class Round2View(View):
             'session': session,
             'participant_count': len(participants),
             'most_dangerous_pks': [],
+            'current_round': 2,
         })
 
     def post(self, request, pk):
@@ -373,6 +411,7 @@ class Round2View(View):
             'session': session,
             'participant_count': len(participants),
             'most_dangerous_pks': [e.pk for e in most_dangerous],
+            'current_round': 2,
         })
 
     
@@ -388,18 +427,41 @@ class Round3View(View):
 
     def get(self, request, pk):
         session = get_object_or_404(KYTSession, pk=pk)
-        formset = CountermeasureFormSet(queryset=session.countermeasures.all())
         
+       
+        if session.round3_end_time is None:
+            session.round3_end_time = timezone.now() + timedelta(minutes=10)
+            session.save()
+        
+
 
         # 評価者名に対応する参加者情報取得
         ids = request.session.get('dangerous_participant_ids', [])
         max_score = request.session.get('danger_max_score', None)
 
-        if ids:
-            danger_participants = session.participants.filter(id__in=ids)
-        else:
-            danger_participants=[]
-            
+        danger_participants = (
+            session.participants.filter(id__in=ids)
+            if ids else []
+        )
+
+        if session.countermeasures.count() == 0:
+            # 代表1人の4Wを初期値に使う（任意）
+            base = danger_participants.first()
+
+            for _ in range(4):
+                Countermeasure.objects.create(
+                    session=session,
+                    who=base.who if base else "",
+                    where=base.where if base else "",
+                    when=base.when if base else "",
+                    what=base.what if base else "",
+                    text=""
+                )
+
+        formset = CountermeasureFormSet(
+            instance=session,
+            prefix="countermeasures"
+        )
         
 
         return render(request, self.template_name, {
@@ -407,36 +469,55 @@ class Round3View(View):
             'session': session,
             'danger_participants': danger_participants,
             'max_score': max_score,
+            'current_round': 3,
+            'round3_end_time': session.round3_end_time,
+
         })
 
     def post(self, request, pk):
         session = get_object_or_404(KYTSession, pk=pk)
-        formset = CountermeasureFormSet(request.POST, queryset=session.countermeasures.all())
+        formset = CountermeasureFormSet(request.POST, instance=session,prefix="countermeasures")
+
+        print("========== ROUND3 POST ==========")
+        print("POST keys:")
+        for k in request.POST.keys():
+            print(" ", k, "=", request.POST.get(k))
+        
+        print("TOTAL_FORMS:", request.POST.get("countermeasures-TOTAL_FORMS"))
+        print("INITIAL_FORMS:", request.POST.get("countermeasures-INITIAL_FORMS"))
 
 
         print("📩 POSTリクエスト受信")
         if formset.is_valid():
             print("✅ formset is valid")
 
-            countermeasures = formset.save(commit=False)
-            #いったん全部false
-            session.countermeasures.update(is_best=False)
+            formset.save()
+
 
             #選ばれたindex
-            best_index = request.POST.get("best_countermeasure")
+            best_pk = request.POST.get("best_countermeasure")
+            print("best_countermeasure =", best_pk)
 
-            for i,cm in enumerate(countermeasures):
-                cm.session = session
-                if best_index is not None and int(best_index) == i:
-                    cm.is_best = True
-                cm.save()
+            if best_pk:
+                session.countermeasures.update(is_best=False)
 
-            return redirect('kytapp:round4', pk=session.pk)
+                session.countermeasures.filter(pk=best_pk).update(is_best=True)
+            
+
+            
+            if request.POST.get("action") == "next":
+                return redirect('kytapp:round4', pk=session.pk)
+            
+        else:
+            print("❌ formset invalid")
+            print(formset.errors)
         
         return render(request, self.template_name, {
             'formset': formset,
             'session': session,
+            'current_round': 3,
         })
+        
 
 
 
@@ -456,6 +537,10 @@ class Round4View(UpdateView):
         context['best_countermeasure'] = best_countermeasure
 
         context['session'] = session
+        context['current_round'] = 4
+        
+
+
 
        
 
