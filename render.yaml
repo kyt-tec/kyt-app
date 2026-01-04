@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: kyt-app
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
+    startCommand: daphne -b 0.0.0.0 -p $PORT kytsite.asgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
