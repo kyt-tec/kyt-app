@@ -1,6 +1,9 @@
-Django==4.2.26
+Django==4.2.23
 gunicorn
+djangorestframework
+channels
+daphne
 dj-database-url
 psycopg2-binary==2.9.9
 whitenoise
-pillow==10.4.0
+pillow
