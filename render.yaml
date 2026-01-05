@@ -3,6 +3,7 @@ services:
     name: kyt-app
     env: python
     plan: free
+    region: singapore
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: daphne -b 0.0.0.0 -p $PORT kytsite.asgi:application
     envVars:
@@ -12,3 +13,4 @@ services:
 databases:
   - name: kyt-db
     plan: free
+    region: singapore
