@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: kyt-app
+    name: kyt-app-sg
     env: python
     plan: free
     region: singapore
@@ -11,6 +11,6 @@ services:
         value: 3.11.9
 
 databases:
-  - name: kyt-db
+  - name: kyt-db-sg
     plan: free
     region: singapore
